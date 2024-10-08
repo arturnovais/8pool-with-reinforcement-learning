@@ -1,0 +1,97 @@
+from Scoreboard import Scoreboard
+from Table import Table
+from Cue import Cue
+from CollisionDetector import CollisionDetector
+
+class Game:
+    def __init__(self, jogadores: list, mesa: Table, bolas: list, taco: Cue):
+        """
+        Inicializa o jogo de sinuca.
+
+        Args:
+            jogadores (list): Uma lista com os nomes dos jogadores.
+            mesa (Table): A instância da mesa de sinuca.
+            bolas (list): Uma lista de instâncias da classe Ball representando as bolas no jogo.
+            taco (Cue): A instância do taco de sinuca (Cue).
+        """
+        self.mesa = mesa  # Mesa onde o jogo acontece
+        self.bolas = bolas  # Lista de bolas em jogo
+        self.taco = taco  # Taco usado pelos jogadores
+        self.scoreboard = Scoreboard(jogadores)  # Placar do jogo
+        self.jogador_atual = self.scoreboard.obter_jogador_atual()  # Nome do jogador atual
+        self.rodando = True  # Estado do jogo
+
+    def jogar_rodada(self, intensidade: float, angulo: float):
+        """
+        Executa uma rodada do jogo, onde o jogador atual realiza uma tacada.
+
+        Args:
+            intensidade (float): A intensidade da tacada, de 0 a 1.
+            angulo (float): O ângulo da tacada em radianos.
+        """
+        # Pegamos a bola branca (geralmente a bola 0)
+        bola_branca = self.bolas[0]
+
+        # O jogador atual realiza uma tacada na bola branca
+        self.taco.aplicar_tacada(bola_branca, intensidade, angulo)
+
+        # Atualiza o estado do jogo (movimento das bolas, colisões etc.)
+        self.atualizar_estado_jogo()
+
+    def atualizar_estado_jogo(self):
+        """
+        Atualiza o estado do jogo, verificando colisões, bolas encaçapadas e alternância de turnos.
+        """
+        collision_detector = CollisionDetector()
+
+        # Atualiza as posições das bolas e verifica colisões
+        for bola in self.bolas:
+            if not self.mesa.detectar_buraco(bola):  # Verifica se a bola não foi encaçapada
+                self.mesa.atualizar_estado_bola(bola, dt=0.1)
+                
+                # Verifica colisão com outras bolas
+                for outra_bola in self.bolas:
+                    if bola != outra_bola and collision_detector.detectar_colisao_bolas(bola, outra_bola):
+                        collision_detector.resolver_colisao_bolas(bola, outra_bola)
+
+                # Verifica colisão com as bordas da mesa
+                collision_detector.detectar_colisao_borda(bola, self.mesa)
+            else:
+                self.scoreboard.registrar_bola_encaçapada(bola)
+
+        # Verifica se o jogo terminou (todas as bolas encaçapadas)
+        if self.scoreboard.verificar_fim_de_jogo():
+            self.rodando = False
+            self.finalizar_jogo()
+        else:
+            # Alterna o turno para o próximo jogador
+            self.scoreboard.mudar_jogador()
+            self.jogador_atual = self.scoreboard.obter_jogador_atual()
+
+    def finalizar_jogo(self):
+        """
+        Finaliza o jogo, exibindo o vencedor e o placar final.
+        """
+        print("Fim de jogo!")
+        self.scoreboard.exibir_placar()
+
+        # Verifica o jogador com maior pontuação
+        vencedor = max(self.scoreboard.pontuacao, key=self.scoreboard.pontuacao.get)
+        print(f"O vencedor é {vencedor}!")
+
+    def exibir_estado_atual(self):
+        """
+        Exibe o estado atual do jogo, incluindo o jogador da vez e o placar.
+        """
+        print(f"Jogador atual: {self.jogador_atual}")
+        self.scoreboard.exibir_placar()
+
+    def iniciar_jogo(self):
+        """
+        Inicia o jogo, estabelecendo o loop principal de interação.
+        """
+        while self.rodando:
+            self.exibir_estado_atual()
+            intensidade = float(input("Informe a intensidade da tacada (0 a 1): "))
+            angulo = float(input("Informe o ângulo da tacada (em radianos): "))
+            self.jogar_rodada(intensidade, angulo)
