@@ -1,4 +1,4 @@
-from Ball import Ball
+from classes.Ball import Ball
 class Pocket:
     def __init__(self, posicao: tuple, raio: float):
         """
