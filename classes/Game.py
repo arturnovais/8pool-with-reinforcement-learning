@@ -21,14 +21,15 @@ class Game:
         self.scoreboard = Scoreboard(jogadores)  # Placar do jogo
         self.rodando = True  # Estado do jogo
 
-    def jogar_rodada(self):
+    def jogar_rodada(self, intensidade: float, angulo: float):
         """
         Executa uma rodada do jogo, onde o jogador atual realiza uma tacada.
+
+        Args:
+            intensidade (float): A intensidade da tacada, de 0 a 1.
+            angulo (float): O ângulo da tacada em radianos.
         """
         jogador_atual = self.scoreboard.obter_jogador_atual()
-
-        # Jogador atual escolhe a tacada
-        intensidade, angulo = jogador_atual.escolher_tacada()
 
         # Pegamos a bola branca (geralmente a bola 0)
         bola_branca = self.bolas[0]
@@ -67,34 +68,6 @@ class Game:
         # Verifica se o jogo terminou (todas as bolas encaçapadas)
         if self.scoreboard.verificar_fim_de_jogo():
             self.rodando = False
-            self.finalizar_jogo()
         else:
             # Alterna o turno para o próximo jogador
             self.scoreboard.mudar_jogador()
-
-    def finalizar_jogo(self):
-        """
-        Finaliza o jogo, exibindo o vencedor e o placar final.
-        """
-        print("Fim de jogo!")
-        self.scoreboard.exibir_placar()
-
-        # Verifica o jogador com maior pontuação
-        vencedor = max(self.scoreboard.jogadores, key=lambda jogador: jogador.pontuacao)
-        print(f"O vencedor é {vencedor.nome}!")
-
-    def iniciar_jogo(self):
-        """
-        Inicia o jogo, estabelecendo o loop principal de interação.
-        """
-        while self.rodando:
-            self.exibir_estado_atual()
-            self.jogar_rodada()
-
-    def exibir_estado_atual(self):
-        """
-        Exibe o estado atual do jogo, incluindo o jogador da vez e o placar.
-        """
-        jogador_atual = self.scoreboard.obter_jogador_atual()
-        print(f"Jogador atual: {jogador_atual.nome}")
-        self.scoreboard.exibir_placar()
