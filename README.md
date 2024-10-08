@@ -1,7 +1,4 @@
-# 8pool-with-reinforcement-learning
- Desenvolvimento de um jogo de sinuca com física realista, onde agentes autônomos serão treinados via aprendizado por reforço. O projeto inclui treinamento para acertar e encaçapar bolas, duelos entre agentes, e um campeonato comparando diferentes algoritmos, com exploração de várias estratégias de recompensas.
-
- # Projeto Sinuca com Aprendizado por Reforço
+# Projeto Sinuca com Aprendizado por Reforço
 
 Este projeto busca desenvolver um jogo de sinuca com a melhor simulação física possível, onde agentes serão treinados utilizando aprendizado por reforço para jogar de forma autônoma. Através de diversas etapas de desenvolvimento e treinamento, nosso objetivo final é realizar um campeonato entre agentes, cada um representando um algoritmo diferente.
 
