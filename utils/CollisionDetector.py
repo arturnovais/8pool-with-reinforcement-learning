@@ -1,6 +1,6 @@
 import math
-from Ball import Ball
-from Table import Table
+from utils.Ball import Ball
+from utils.Table import Table
 
 class CollisionDetector:
     def __init__(self, elasticidade: float = 0.95):

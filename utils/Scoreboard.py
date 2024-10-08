@@ -1,5 +1,5 @@
-from Ball import Ball
-from Player import Player
+from utils.Ball import Ball
+from utils.Player import Player
 
 class Scoreboard:
     def __init__(self, jogadores: list):

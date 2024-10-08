@@ -1,4 +1,4 @@
-from  PhysicsEnvironment import PhysicsEnvironment
+from  utils.PhysicsEnvironment import PhysicsEnvironment
 
 class Ball:
     def __init__(self, numero: int, raio: float, massa: float, posicao: tuple, velocidade: tuple = (0, 0), rotação: float = 0):

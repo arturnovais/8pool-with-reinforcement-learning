@@ -1,6 +1,6 @@
-from PhysicsEnvironment import PhysicsEnvironment
-from Ball import Ball
-from Pocket import Pocket
+from utils.PhysicsEnvironment import PhysicsEnvironment
+from utils.Ball import Ball
+from utils.Pocket import Pocket
 
 class Table:
     def __init__(self, largura: float, altura: float, ambiente_fisico: PhysicsEnvironment):
@@ -33,6 +33,24 @@ class Table:
             Pocket(posicao=(self.largura / 2, self.altura), raio=raio_buraco),  # Meio inferior
             Pocket(posicao=(self.largura, self.altura), raio=raio_buraco)  # Canto inferior direito
         ]
+
+    def atualizar_estado_bola(self, bola: Ball, dt: float):
+        """
+        Atualiza a posição da bola considerando a velocidade e o tempo decorrido, além de atrito e resistência.
+
+        Args:
+            bola (Ball): A bola cujo estado será atualizado.
+            dt (float): Intervalo de tempo para atualização (em segundos).
+        """
+        # Aplica as leis de física à bola, como atrito e resistência do ar
+        bola.velocidade = self.ambiente_fisico.aplicar_atrito(bola.velocidade)
+        bola.velocidade = self.ambiente_fisico.aplicar_resistencia_ar(bola.velocidade)
+
+        # Atualiza a posição da bola com base na velocidade
+        bola.posicao = (
+            bola.posicao[0] + bola.velocidade[0] * dt,
+            bola.posicao[1] + bola.velocidade[1] * dt
+        )
 
     def detectar_buraco(self, bola: Ball) -> bool:
         """

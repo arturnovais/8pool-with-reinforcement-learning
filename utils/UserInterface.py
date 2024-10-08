@@ -1,4 +1,5 @@
-from Game import Game
+from utils.Game import Game
+
 class UserInterface:
     def __init__(self, jogo: Game):
         """
