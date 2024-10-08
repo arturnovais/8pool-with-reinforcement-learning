@@ -1,4 +1,5 @@
 from Ball import Ball
+from Player import Player
 
 class Scoreboard:
     def __init__(self, jogadores: list):
@@ -6,25 +7,21 @@ class Scoreboard:
         Inicializa o placar do jogo de sinuca.
 
         Args:
-            jogadores (list): Uma lista com os nomes dos jogadores.
+            jogadores (list): Uma lista de instâncias da classe Player.
         """
-        self.jogadores = jogadores  # Lista de jogadores
-        self.pontuacao = {jogador: 0 for jogador in jogadores}  # Dicionário com a pontuação de cada jogador
+        self.jogadores = jogadores  # Lista de jogadores (instâncias de Player)
         self.bolas_encaçapadas = []  # Lista de bolas encaçapadas
         self.jogador_atual = 0  # Índice do jogador atual
 
-    def adicionar_pontos(self, jogador: str, pontos: int):
+    def adicionar_pontos(self, jogador: Player, pontos: int):
         """
         Adiciona pontos ao jogador.
 
         Args:
-            jogador (str): O nome do jogador que recebe os pontos.
+            jogador (Player): O jogador que recebe os pontos.
             pontos (int): O número de pontos a ser adicionado.
         """
-        if jogador in self.pontuacao:
-            self.pontuacao[jogador] += pontos
-        else:
-            print(f"Jogador {jogador} não encontrado no placar.")
+        jogador.adicionar_pontos(pontos)
 
     def registrar_bola_encaçapada(self, bola: Ball):
         """
@@ -41,12 +38,12 @@ class Scoreboard:
         """
         self.jogador_atual = (self.jogador_atual + 1) % len(self.jogadores)
 
-    def obter_jogador_atual(self) -> str:
+    def obter_jogador_atual(self) -> Player:
         """
-        Retorna o nome do jogador atual.
+        Retorna o jogador atual.
 
         Returns:
-            str: O nome do jogador atual.
+            Player: A instância do jogador atual.
         """
         return self.jogadores[self.jogador_atual]
 
@@ -55,8 +52,8 @@ class Scoreboard:
         Exibe o placar atual com os nomes dos jogadores e suas pontuações.
         """
         print("Placar Atual:")
-        for jogador, pontos in self.pontuacao.items():
-            print(f"{jogador}: {pontos} pontos")
+        for jogador in self.jogadores:
+            jogador.exibir_pontuacao()
 
     def verificar_fim_de_jogo(self) -> bool:
         """

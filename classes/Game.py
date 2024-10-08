@@ -2,6 +2,7 @@ from Scoreboard import Scoreboard
 from Table import Table
 from Cue import Cue
 from CollisionDetector import CollisionDetector
+from Player import Player
 
 class Game:
     def __init__(self, jogadores: list, mesa: Table, bolas: list, taco: Cue):
@@ -9,7 +10,7 @@ class Game:
         Inicializa o jogo de sinuca.
 
         Args:
-            jogadores (list): Uma lista com os nomes dos jogadores.
+            jogadores (list): Uma lista de instâncias da classe Player.
             mesa (Table): A instância da mesa de sinuca.
             bolas (list): Uma lista de instâncias da classe Ball representando as bolas no jogo.
             taco (Cue): A instância do taco de sinuca (Cue).
@@ -18,17 +19,17 @@ class Game:
         self.bolas = bolas  # Lista de bolas em jogo
         self.taco = taco  # Taco usado pelos jogadores
         self.scoreboard = Scoreboard(jogadores)  # Placar do jogo
-        self.jogador_atual = self.scoreboard.obter_jogador_atual()  # Nome do jogador atual
         self.rodando = True  # Estado do jogo
 
-    def jogar_rodada(self, intensidade: float, angulo: float):
+    def jogar_rodada(self):
         """
         Executa uma rodada do jogo, onde o jogador atual realiza uma tacada.
-
-        Args:
-            intensidade (float): A intensidade da tacada, de 0 a 1.
-            angulo (float): O ângulo da tacada em radianos.
         """
+        jogador_atual = self.scoreboard.obter_jogador_atual()
+
+        # Jogador atual escolhe a tacada
+        intensidade, angulo = jogador_atual.escolher_tacada()
+
         # Pegamos a bola branca (geralmente a bola 0)
         bola_branca = self.bolas[0]
 
@@ -36,11 +37,14 @@ class Game:
         self.taco.aplicar_tacada(bola_branca, intensidade, angulo)
 
         # Atualiza o estado do jogo (movimento das bolas, colisões etc.)
-        self.atualizar_estado_jogo()
+        self.atualizar_estado_jogo(jogador_atual)
 
-    def atualizar_estado_jogo(self):
+    def atualizar_estado_jogo(self, jogador_atual: Player):
         """
         Atualiza o estado do jogo, verificando colisões, bolas encaçapadas e alternância de turnos.
+
+        Args:
+            jogador_atual (Player): O jogador atual que realizou a jogada.
         """
         collision_detector = CollisionDetector()
 
@@ -48,7 +52,7 @@ class Game:
         for bola in self.bolas:
             if not self.mesa.detectar_buraco(bola):  # Verifica se a bola não foi encaçapada
                 self.mesa.atualizar_estado_bola(bola, dt=0.1)
-                
+
                 # Verifica colisão com outras bolas
                 for outra_bola in self.bolas:
                     if bola != outra_bola and collision_detector.detectar_colisao_bolas(bola, outra_bola):
@@ -58,6 +62,7 @@ class Game:
                 collision_detector.detectar_colisao_borda(bola, self.mesa)
             else:
                 self.scoreboard.registrar_bola_encaçapada(bola)
+                self.scoreboard.adicionar_pontos(jogador_atual, 10)  # Exemplo de pontuação
 
         # Verifica se o jogo terminou (todas as bolas encaçapadas)
         if self.scoreboard.verificar_fim_de_jogo():
@@ -66,7 +71,6 @@ class Game:
         else:
             # Alterna o turno para o próximo jogador
             self.scoreboard.mudar_jogador()
-            self.jogador_atual = self.scoreboard.obter_jogador_atual()
 
     def finalizar_jogo(self):
         """
@@ -76,15 +80,8 @@ class Game:
         self.scoreboard.exibir_placar()
 
         # Verifica o jogador com maior pontuação
-        vencedor = max(self.scoreboard.pontuacao, key=self.scoreboard.pontuacao.get)
-        print(f"O vencedor é {vencedor}!")
-
-    def exibir_estado_atual(self):
-        """
-        Exibe o estado atual do jogo, incluindo o jogador da vez e o placar.
-        """
-        print(f"Jogador atual: {self.jogador_atual}")
-        self.scoreboard.exibir_placar()
+        vencedor = max(self.scoreboard.jogadores, key=lambda jogador: jogador.pontuacao)
+        print(f"O vencedor é {vencedor.nome}!")
 
     def iniciar_jogo(self):
         """
@@ -92,6 +89,12 @@ class Game:
         """
         while self.rodando:
             self.exibir_estado_atual()
-            intensidade = float(input("Informe a intensidade da tacada (0 a 1): "))
-            angulo = float(input("Informe o ângulo da tacada (em radianos): "))
-            self.jogar_rodada(intensidade, angulo)
+            self.jogar_rodada()
+
+    def exibir_estado_atual(self):
+        """
+        Exibe o estado atual do jogo, incluindo o jogador da vez e o placar.
+        """
+        jogador_atual = self.scoreboard.obter_jogador_atual()
+        print(f"Jogador atual: {jogador_atual.nome}")
+        self.scoreboard.exibir_placar()
