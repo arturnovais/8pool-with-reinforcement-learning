@@ -1,5 +1,5 @@
 class PhysicsEnvironment:
-    def __init__(self, friccao: float = 0.99, resistencia_ar: float = 0.999):
+    def __init__(self, friccao: float = 0.995, resistencia_ar: float = 0.999):
         """
         Inicializa o ambiente físico com atrito e resistência do ar.
 

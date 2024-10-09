@@ -18,9 +18,17 @@ class Ball:
         self.massa = massa
         self.posicao = posicao  # Posição inicial da bola (x, y)
         self.velocidade = velocidade  # Velocidade (vx, vy)
-        self.aceleracao = (0, 0)  # Aceleração (ax, ay)
-        self.rotação = rotação  # Rotação da bola (efeito)
-        self.spin = 0  # Spin da bola (efeito aplicado no movimento)
+        self.cor = (255, 255, 255)  # Cor da bola (padrão branca)
+        if self.numero != 0:
+            if self.numero % 2 == 0:
+                self.cor = (255,0,0)
+            else:
+                self.cor = (0,0,255)
+            
+        
+        #self.aceleracao = (0, 0)  # Aceleração (ax, ay)
+        #self.rotação = rotação  # Rotação da bola (efeito)
+        #self.spin = 0  # Spin da bola (efeito aplicado no movimento)
     
     def aplicar_forca(self, forca: tuple, dt: float):
         """
@@ -49,6 +57,12 @@ class Ball:
             dt (float): Intervalo de tempo para atualização (em segundos).
             ambiente_fisico (PhysicsEnvironment): O ambiente físico que afeta o movimento da bola.
         """
+        
+        #self.posicao = ( self.posicao[0] + self.velocidade[0], 
+        #                 self.posicao[1] + self.velocidade[1])
+        
+        #return None
+    
         # Aplica atrito e resistência do ar
         self.velocidade = ambiente_fisico.aplicar_atrito(self.velocidade)
         self.velocidade = ambiente_fisico.aplicar_resistencia_ar(self.velocidade)
@@ -60,7 +74,7 @@ class Ball:
         )
         
         # Aplica o spin ao movimento
-        self.aplicar_spin(dt)
+        #self.aplicar_spin(dt)
 
     def aplicar_spin(self, dt: float):
         """
