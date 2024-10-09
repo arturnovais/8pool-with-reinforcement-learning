@@ -1,8 +1,8 @@
-from Scoreboard import Scoreboard
-from Table import Table
-from Cue import Cue
-from CollisionDetector import CollisionDetector
-from Player import Player
+from utils.Scoreboard import Scoreboard
+from utils.Table import Table
+from utils.Cue import Cue
+from utils.CollisionDetector import CollisionDetector
+from utils.Player import Player
 
 class Game:
     def __init__(self, jogadores: list, mesa: Table, bolas: list, taco: Cue):

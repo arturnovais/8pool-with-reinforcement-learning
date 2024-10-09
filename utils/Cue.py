@@ -1,4 +1,5 @@
 import math
+from utils.Ball import Ball
 
 class Cue:
     def __init__(self, força_maxima: float = 10.0):

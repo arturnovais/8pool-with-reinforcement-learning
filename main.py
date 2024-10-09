@@ -1,8 +1,8 @@
 import pygame
 import sys
-from classes.Table import Table
-from classes.Ball import Ball
-from classes.PhysicsEnvironment import PhysicsEnvironment
+from utils.Table import Table
+from utils.Ball import Ball
+from utils.PhysicsEnvironment import PhysicsEnvironment
 from time import sleep
 
 display_width = 1200
