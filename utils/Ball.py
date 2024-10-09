@@ -53,6 +53,9 @@ class Ball:
         self.velocidade = ambiente_fisico.aplicar_atrito(self.velocidade)
         self.velocidade = ambiente_fisico.aplicar_resistencia_ar(self.velocidade)
 
+        if self.velocidade[0] ** 2 + self.velocidade[1] ** 2 < 0.01:
+            self.velocidade = (0, 0)
+
         # Atualiza a posição levando em conta a velocidade e o tempo
         self.posicao = (
             self.posicao[0] + self.velocidade[0] * dt,
@@ -124,7 +127,10 @@ def iniciar_bola_branca(table):
     """
     Função para inicializar a bola branca na posição correta e com uma velocidade inicial.
     """
-    bola_branca = Ball(numero=0, raio=10, massa=1, posicao=(150, 500))  
+    bola_branca = Ball(numero=0, raio=10, massa=1.05, posicao=(150, 500))  
+    bola_branca.velocidade = (100, 30)  
     bola_branca.velocidade = (100, 100)  
     bola_branca.cor = (255, 255, 255)  
     table.bolas.append(bola_branca)
+    table.bola_branca = bola_branca
+    

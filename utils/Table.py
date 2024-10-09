@@ -5,7 +5,7 @@ from utils.CollisionDetector import CollisionDetector
 import pygame
 
 class Table:
-    def __init__(self, largura: float, altura: float, ambiente_fisico: PhysicsEnvironment):
+    def __init__(self, largura: float, altura: float, ambiente_fisico: PhysicsEnvironment, display_width, display_height):
         """
         Inicializa a mesa de sinuca com suas dimensões e o ambiente físico.
 
@@ -14,8 +14,10 @@ class Table:
             altura (float): A altura da mesa de sinuca (em metros).
             ambiente_fisico (PhysicsEnvironment): O ambiente físico que afeta as bolas na mesa.
         """
-        self.x_start = 200
-        self.y_start = 300
+        # desenha a mesa no meio
+        
+        self.x_start = display_width/2 - largura/2
+        self.y_start = display_height/2 - altura/2
         self.largura = largura
         self.altura = altura 
         
@@ -26,6 +28,9 @@ class Table:
         self.buracos = self.definir_buracos()
 
         self.bolas = []
+        
+        self.bola_branca = None
+        
 
     def definir_buracos(self) -> list:
         """
@@ -36,12 +41,13 @@ class Table:
         """
         raio_buraco = 15  
         return [
-            Pocket(posicao=(self.x_start, self.y_start), raio=raio_buraco),
+            Pocket(posicao=(self.x_start                     , self.y_start), raio=raio_buraco),
             Pocket(posicao=(self.x_start + (self.largura / 2), self.y_start), raio=raio_buraco),  
-            Pocket(posicao=(self.x_start + self.largura, self.y_start), raio=raio_buraco),
-            Pocket(posicao=(self.x_start, self.y_start + self.altura), raio=raio_buraco),  
+            Pocket(posicao=(self.x_start + self.largura      , self.y_start), raio=raio_buraco),
+            
+            Pocket(posicao=(self.x_start                     , self.y_start + self.altura), raio=raio_buraco),  
             Pocket(posicao=(self.x_start + (self.largura / 2), self.y_start + self.altura), raio=raio_buraco),  
-            Pocket(posicao=(self.x_start + self.largura, self.y_start + self.altura), raio=raio_buraco)  
+            Pocket(posicao=(self.x_start + self.largura      , self.y_start + self.altura), raio=raio_buraco)  
         ]
 
     def atualizar_estado_bola(self, bola: Ball, dt: float):
@@ -86,6 +92,7 @@ class Table:
 
         pygame.draw.rect(screen, cor_mesa, (self.x_start, self.y_start, self.largura, self.altura))
 
+        # desenha burraco
         for buraco in self.buracos:
             pygame.draw.circle(screen, (128, 128, 128), (int(buraco.posicao[0]), int(buraco.posicao[1])), int(buraco.raio))
 
