@@ -51,23 +51,17 @@ class Ball:
     
     def atualizar_posicao(self, dt: float, ambiente_fisico: PhysicsEnvironment):
         """
-        Atualiza a posição da bola considerando a velocidade e o tempo decorrido, além de atrito e resistência.
+        Atualiza a posição da bola considerando a velocidade e o tempo decorrido,
+        além de aplicar atrito, resistência do ar e verificar se a bola deve parar.
 
         Args:
             dt (float): Intervalo de tempo para atualização (em segundos).
             ambiente_fisico (PhysicsEnvironment): O ambiente físico que afeta o movimento da bola.
         """
-        
-        #self.posicao = ( self.posicao[0] + self.velocidade[0], 
-        #                 self.posicao[1] + self.velocidade[1])
-        
-        #return None
-    
-        # Aplica atrito e resistência do ar
-        self.velocidade = ambiente_fisico.aplicar_atrito(self.velocidade)
-        self.velocidade = ambiente_fisico.aplicar_resistencia_ar(self.velocidade)
+        # Aplica as forças do ambiente físico (atrito, resistência do ar) e ajusta a velocidade
+        self.velocidade = ambiente_fisico.aplicar_forcas(self.velocidade)
 
-        # Atualiza a posição levando em conta a velocidade e o tempo
+        # Atualiza a posição levando em conta a nova vel1ocidade e o tempo
         self.posicao = (
             self.posicao[0] + self.velocidade[0] * dt,
             self.posicao[1] + self.velocidade[1] * dt
