@@ -1,36 +1,102 @@
+import pygame
+import sys
 from utils.Table import Table
-from utils.PhysicsEnvironment import PhysicsEnvironment
 from utils.Ball import Ball
-from utils.Player import Player
-from utils.Cue import Cue
-from utils.Game import Game
-from utils.UserInterface import UserInterface
+from utils.PhysicsEnvironment import PhysicsEnvironment
+from time import sleep
+
+display_width = 1200
+display_height = 1000
+
+def criar_bolas(table):
+    """
+    Função para inicializar as bolas com posições e cores adequadas em um formato triangular,
+    no canto superior direito da mesa, independentemente da posição da mesa.
+    """
+    cores = [
+        (255, 255, 0),    # Amarelo
+        (255, 0, 0),      # Vermelho
+        (0, 255, 0),      # Verde
+        (0, 0, 255),      # Azul
+        (255, 20, 147),   # Rosa
+        (0, 0, 0),        # Preto
+        (255, 165, 0),    # Laranja
+        (139, 69, 19),    # Marrom
+        (255, 255, 255),  # Bola Branca
+        # Listradas
+        (255, 192, 203),  # Listrada rosa
+        (0, 128, 128),    # Listrada ciano
+        (128, 0, 128),    # Listrada roxa
+    ]
+
+    raio_bola = 10
+    massa_bola = 1
+    espaco_entre_bolas = 2  # Espaço extra entre as bolas para evitar sobreposição
+
+    # Coordenadas iniciais para o triângulo de bolas no canto superior direito da mesa
+    x_inicial = table.x_start + table.largura - (5 * raio_bola * 2) - espaco_entre_bolas  # Deixa espaço no lado direito da mesa
+    y_inicial = table.y_start + (raio_bola * 2)  # Posiciona logo abaixo do topo da mesa
+
+    contador_bola = 0
+    for linha in range(5):
+        for i in range(linha + 1):
+            # Calcula a posição de cada bola, com espaçamento adequado
+            x_pos = x_inicial + (linha * (raio_bola * 2 + espaco_entre_bolas))
+            y_pos = y_inicial + (i * (raio_bola * 2 + espaco_entre_bolas)) + (linha * raio_bola)
+            bola = Ball(numero=contador_bola + 1, raio=raio_bola, massa=massa_bola, posicao=(x_pos, y_pos))
+            bola.velocidade = (0, 0)  # Todas começam paradas
+            bola.cor = cores[contador_bola % len(cores)]  # Atribui uma cor para cada bola
+            table.bolas.append(bola)
+            contador_bola += 1
+
+
+def iniciar_bola_branca(table):
+    """
+    Função para inicializar a bola branca na posição correta e com uma velocidade inicial.
+    """
+    bola_branca = Ball(numero=0, raio=10, massa=1, posicao=(150, 500))  
+    bola_branca.velocidade = (100, 100)  
+    bola_branca.cor = (255, 255, 255)  
+    table.bolas.append(bola_branca)
+
+def desenhar_borda(screen, x_start, y_start, largura, altura):
+    """
+    Desenha a borda da mesa de sinuca em torno da área verde.
+    """
+    cor_borda = (139, 69, 19)  # Marrom para a borda
+    espessura_borda = 20  # Largura da borda
+    pygame.draw.rect(screen, cor_borda, (x_start - espessura_borda, y_start - espessura_borda,
+                                         largura + 2 * espessura_borda, altura + 2 * espessura_borda))
 
 def main():
-    print("Bem-vindo ao jogo de Sinuca!")
+    pygame.init()
+    screen = pygame.display.set_mode((display_width, display_height))
+    pygame.display.set_caption("Sinuca")
+    clock = pygame.time.Clock()
+    ambiente_fisico = PhysicsEnvironment()
+    table = Table(800, 400, ambiente_fisico)
 
-    # Criar a mesa com dimensões padrão e o ambiente físico
-    mesa = Table(largura=2.84, altura=1.42, ambiente_fisico=PhysicsEnvironment(friccao=0.98, resistencia_ar=0.995))
-    
-    # Criar as bolas (16 bolas, sendo a bola 0 a bola branca)
-    bolas = [Ball(numero=i, raio=0.057, massa=0.17, posicao=(1 + i * 0.1, 0.5)) for i in range(16)]
-    
-    # Criar o taco com uma força máxima
-    taco = Cue(força_maxima=12.0)
+    criar_bolas(table)
+    iniciar_bola_branca(table)
 
-    # Criar jogadores
-    jogador1 = Player("Jogador 1")
-    jogador2 = Player("Jogador 2")
+    while True:
+        #sleep(0.3)
+        for event in pygame.event.get():
+            #sleep(0.1)
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
 
-    # Criar o jogo com os dois jogadores
-    jogo = Game(jogadores=[jogador1, jogador2], mesa=mesa, bolas=bolas, taco=taco)
+        screen.fill((0, 0, 0))  # Fundo preto
 
-    # Criar a interface do usuário para o jogo
-    interface = UserInterface(jogo)
+        # Desenha a borda antes da mesa
+        desenhar_borda(screen, table.x_start, table.y_start, table.largura, table.altura)
 
-    # Iniciar o jogo
-    interface.iniciar_jogo()
+        # Desenha a mesa e as bolas
+        table.draw(screen)
 
-# Executar o jogo
+        pygame.display.flip()
+        clock.tick(60)
+
 if __name__ == "__main__":
     main()
