@@ -68,6 +68,7 @@ def main():
     criar_bolas(table)
     iniciar_bola_branca(table)
     
+    
     '''
     Loop principal do jogo:
     Captura e processa eventos do jogo, como fechar a janela ou clicar para aplicar a tacada.

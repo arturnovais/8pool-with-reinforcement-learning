@@ -1,8 +1,8 @@
+import pygame
 from utils.PhysicsEnvironment import PhysicsEnvironment
 from utils.Ball import Ball
 from utils.Pocket import Pocket
 from utils.CollisionDetector import CollisionDetector
-import pygame
 
 class Table:
     '''
@@ -38,15 +38,59 @@ class Table:
         Returns:
             list: Lista de instâncias de Pocket representando os buracos da mesa.
         '''
-        raio_buraco = 15
+        raio_buraco = 13  # Buracos um pouco menores
         return [
-            Pocket(posicao=(self.x_start                     , self.y_start), raio=raio_buraco),
-            Pocket(posicao=(self.x_start + (self.largura / 2), self.y_start), raio=raio_buraco),
-            Pocket(posicao=(self.x_start + self.largura      , self.y_start), raio=raio_buraco),
-            Pocket(posicao=(self.x_start                     , self.y_start + self.altura), raio=raio_buraco),
-            Pocket(posicao=(self.x_start + (self.largura / 2), self.y_start + self.altura), raio=raio_buraco),
-            Pocket(posicao=(self.x_start + self.largura      , self.y_start + self.altura), raio=raio_buraco)
+            Pocket(posicao=(self.x_start + 5, self.y_start + 5), raio=raio_buraco),  # Canto superior esquerdo
+            Pocket(posicao=(self.x_start + self.largura / 2, self.y_start + 5), raio=raio_buraco),  # Meio superior
+            Pocket(posicao=(self.x_start + self.largura - 5, self.y_start + 5), raio=raio_buraco),  # Canto superior direito
+            Pocket(posicao=(self.x_start + 5, self.y_start + self.altura - 5), raio=raio_buraco),  # Canto inferior esquerdo
+            Pocket(posicao=(self.x_start + self.largura / 2, self.y_start + self.altura - 5), raio=raio_buraco),  # Meio inferior
+            Pocket(posicao=(self.x_start + self.largura - 5, self.y_start + self.altura - 5), raio=raio_buraco)  # Canto inferior direito
         ]
+        
+    
+
+    def desenhar_bordas(self, screen):
+        '''
+        Desenha as bordas arredondadas da mesa, simulando bordas de madeira.
+        
+        Args:
+            screen (pygame.Surface): Superfície onde as bordas serão desenhadas.
+        '''
+        cor_borda = (139, 69, 19)  # Cor marrom para simular madeira
+        espessura_borda = 30
+
+        # Desenha bordas retangulares com cantos arredondados
+        pygame.draw.rect(screen, cor_borda, (self.x_start - espessura_borda, self.y_start - espessura_borda,
+                                             self.largura + 2 * espessura_borda, self.altura + 2 * espessura_borda), border_radius=15)
+
+        # Adiciona efeito de profundidade nas bordas
+        sombra_borda = (105, 53, 10)
+        pygame.draw.rect(screen, sombra_borda, (self.x_start - espessura_borda + 10, self.y_start - espessura_borda + 10,
+                                                self.largura + 2 * espessura_borda, self.altura + 2 * espessura_borda), border_radius=15)
+
+    def desenhar_mesa_verde(self, screen):
+        '''
+        Desenha a área verde (tapete) da mesa.
+        
+        Args:
+            screen (pygame.Surface): Superfície onde a área verde será desenhada.
+        '''
+        cor_verde_mesa = (34, 139, 34)  # Cor verde simulando o tecido de sinuca
+        pygame.draw.rect(screen, cor_verde_mesa, (self.x_start, self.y_start, self.largura, self.altura))
+
+    def desenhar_buracos(self, screen):
+        '''
+        Desenha os buracos pretos com contornos metálicos na mesa.
+        
+        Args:
+            screen (pygame.Surface): Superfície onde os buracos serão desenhados.
+        '''
+        for buraco in self.buracos:
+            # Contorno metálico
+            pygame.draw.circle(screen, (169, 169, 169), (int(buraco.posicao[0]), int(buraco.posicao[1])), buraco.raio + 3)
+            # Buraco preto
+            pygame.draw.circle(screen, (0, 0, 0), (int(buraco.posicao[0]), int(buraco.posicao[1])), buraco.raio)
 
     def atualizar_estado_bola(self, bola: Ball, dt: float):
         '''
@@ -78,17 +122,21 @@ class Table:
 
     def draw(self, screen: pygame.Surface):
         '''
-        Desenha a mesa de sinuca, buracos e bolas, além de atualizar as posições das bolas e tratar as colisões.
+        Desenha a mesa de sinuca, buracos, bolas e as bordas, além de atualizar as posições das bolas e tratar as colisões.
         
         Args:
             screen (pygame.Surface): Superfície onde a mesa será desenhada.
         '''
-        cor_mesa = (0, 128, 0)
-        pygame.draw.rect(screen, cor_mesa, (self.x_start, self.y_start, self.largura, self.altura))
+        # Desenha as bordas de madeira da mesa
+        self.desenhar_bordas(screen)
 
-        for buraco in self.buracos:
-            pygame.draw.circle(screen, (128, 128, 128), (int(buraco.posicao[0]), int(buraco.posicao[1])), int(buraco.raio))
+        # Desenha a parte verde da mesa
+        self.desenhar_mesa_verde(screen)
 
+        # Desenha os buracos da mesa
+        self.desenhar_buracos(screen)
+
+        # Gerencia o estado das bolas e as colisões
         bolas_para_remover = []
 
         for bola in self.bolas:
@@ -103,8 +151,16 @@ class Table:
                 if self.detecttor_colisao.detectar_colisao_bolas(self.bolas[i], self.bolas[j]):
                     self.detecttor_colisao.resolver_colisao_bolas(self.bolas[i], self.bolas[j])
 
+        # Remover bolas que caíram nos buracos
         for bola in bolas_para_remover:
             self.bolas.remove(bola)
 
+        # Desenha as bolas na tela
         for bola in self.bolas:
-            pygame.draw.circle(screen, bola.cor, (int(bola.posicao[0]), int(bola.posicao[1])), int(bola.raio))
+            if bola.imagem:
+                # Desenha a bola com a imagem ajustada, centralizando com base no novo tamanho visual
+                visual_raio = bola.raio * 2  # Usando o dobro do raio para o tamanho visual
+                screen.blit(bola.imagem, (bola.posicao[0] - visual_raio, bola.posicao[1] - visual_raio))
+            else:
+                # Se não houver imagem, desenha a bola como um círculo de cor
+                pygame.draw.circle(screen, bola.cor, (int(bola.posicao[0]), int(bola.posicao[1])), int(bola.raio))

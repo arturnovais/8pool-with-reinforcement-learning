@@ -1,20 +1,22 @@
+import pygame
 from utils.PhysicsEnvironment import PhysicsEnvironment
 
 class Ball:
     '''
     Classe que representa uma bola de sinuca com características como número, raio, massa, posição,
-    velocidade e rotação. A bola pode ser movimentada aplicando forças e é afetada por efeitos físicos como atrito.
+    velocidade, rotação e imagem associada.
     
     Args:
         numero (int): O número da bola (ex: 1-15 para bolas coloridas).
         raio (float): O raio da bola (em metros).
         massa (float): A massa da bola (em kg).
         posicao (tuple): Posição inicial da bola na mesa, no formato (x, y).
+        imagem (pygame.Surface): A imagem da bola.
         velocidade (tuple): Velocidade inicial da bola, com componentes (vx, vy). Padrão é (0, 0).
         rotação (float): Rotação inicial da bola (em radianos).
     '''
     
-    def __init__(self, numero: int, raio: float, massa: float, posicao: tuple, velocidade: tuple = (0, 0), rotação: float = 0):
+    def __init__(self, numero: int, raio: float, massa: float, posicao: tuple, imagem=None, velocidade: tuple = (0, 0), rotação: float = 0):
         self.numero = numero
         self.raio = raio
         self.massa = massa
@@ -24,6 +26,15 @@ class Ball:
         self.rotação = rotação
         self.spin = 0
 
+        self.visual_raio = raio * 2  # Raio visual para o dobro do tamanho
+        if imagem is not None:
+            # Redimensiona a imagem para o dobro do tamanho da bola (baseado no raio visual)
+            self.imagem = pygame.transform.scale(imagem, (int(self.visual_raio * 2), int(self.visual_raio * 2)))
+        else:
+            self.imagem = None
+
+
+    
     def aplicar_forca(self, forca: tuple, dt: float):
         '''
         Aplica uma força à bola, ajustando sua aceleração e velocidade de acordo com a segunda lei de Newton.
@@ -75,33 +86,32 @@ class Ball:
             self.velocidade[1] - spin_efeito * dt
         )
 
+def carregar_imagem_bola(numero):
+        '''
+        Carrega a imagem correspondente à bola com o número fornecido.
+        
+        Args:
+            numero (int): Número da bola para carregar a imagem.
+        
+        Returns:
+            pygame.Surface: A imagem da bola carregada.
+        '''
+        caminho_imagem = f"imgs/ball{numero}.png"  # Assumindo que as imagens estão em "imagens/ballX.png"
+        return pygame.image.load(caminho_imagem).convert_alpha()  # Carrega a imagem com suporte a transparência
 
+
+# Funções criar_bolas e iniciar_bola_branca fora da classe Ball
 def criar_bolas(table):
     '''
     Inicializa as bolas de sinuca e as posiciona em formato triangular no canto superior direito da mesa.
-    Cada bola recebe uma cor e é adicionada à mesa de jogo.
+    Cada bola recebe uma imagem correspondente e é adicionada à mesa de jogo.
     
     Args:
         table (Table): A mesa de sinuca onde as bolas serão posicionadas.
     '''
-    cores = [
-        (255, 255, 0),    # Amarelo
-        (255, 0, 0),      # Vermelho
-        (0, 255, 0),      # Verde
-        (0, 0, 255),      # Azul
-        (255, 20, 147),   # Rosa
-        (0, 0, 0),        # Preto
-        (255, 165, 0),    # Laranja
-        (139, 69, 19),    # Marrom
-        (255, 255, 255),  # Bola Branca
-        (255, 192, 203),  # Listrada rosa
-        (0, 128, 128),    # Listrada ciano
-        (128, 0, 128),    # Listrada roxa
-    ]
-
-    raio_bola = 10
+    raio_bola = 10  # Aumente o raio da bola
     massa_bola = 1
-    espaco_entre_bolas = 2
+    espaco_entre_bolas = 5  # Aumentar o espaçamento entre as bolas para evitar sobreposição
 
     # Coordenadas ajustadas para centralizar no eixo y e deslocar um pouco mais à direita no eixo x
     x_inicial = table.x_start + table.largura * 0.7
@@ -112,12 +122,15 @@ def criar_bolas(table):
         for i in range(linha + 1):
             x_pos = x_inicial + (linha * (raio_bola * 2 + espaco_entre_bolas))
             y_pos = y_inicial + (i * (raio_bola * 2 + espaco_entre_bolas)) + (linha * raio_bola)
-            bola = Ball(numero=contador_bola + 1, raio=raio_bola, massa=massa_bola, posicao=(x_pos, y_pos))
+            
+            # Carrega a imagem correspondente ao número da bola
+            imagem_bola = carregar_imagem_bola(contador_bola + 1)
+            
+            # Cria a bola com a imagem redimensionada para o novo raio
+            bola = Ball(numero=contador_bola + 1, raio=raio_bola, massa=massa_bola, posicao=(x_pos, y_pos), imagem=imagem_bola)
             bola.velocidade = (0, 0)
-            bola.cor = cores[contador_bola % len(cores)]
             table.bolas.append(bola)
             contador_bola += 1
-
 
 def iniciar_bola_branca(table):
     '''
@@ -126,8 +139,11 @@ def iniciar_bola_branca(table):
     Args:
         table (Table): A mesa onde a bola branca será posicionada.
     '''
-    bola_branca = Ball(numero=0, raio=10, massa=1.05, posicao=(150, 500))
+    # Carrega a imagem da bola branca
+    imagem_bola_branca = carregar_imagem_bola(0)  # Supondo que a bola branca é "ball0.png"
+    
+    raio_bola = 10  # Aumente o raio da bola branca também
+    bola_branca = Ball(numero=0, raio=raio_bola, massa=1.05, posicao=(150, 500), imagem=imagem_bola_branca)
     bola_branca.velocidade = (100, 100)
-    bola_branca.cor = (255, 255, 255)
     table.bolas.append(bola_branca)
     table.bola_branca = bola_branca
