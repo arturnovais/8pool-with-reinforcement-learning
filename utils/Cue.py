@@ -74,6 +74,7 @@ class Cue:
             if not self.lance_travado:
                 x, y = self.table.bola_branca.posicao
                 mx, my = pygame.mouse.get_pos()
+                
                 pygame.draw.line(screen, (88, 51, 0), (x, y), (mx, my), 6)
 
             self.draw_intensidade_bar(screen)
@@ -111,12 +112,16 @@ class Cue:
         if self.is_enable() and not self.lance_travado:
             x, y = self.table.bola_branca.posicao
             mx, my = pygame.mouse.get_pos()
-
-            angulo = math.atan2(my - y, mx - x)
-
+            
+            nx = 2*x - mx
+            ny = 2*y - my                
+            angulo = math.atan2(ny - y, nx - x)
+            
             self.angulo_travado = angulo
             self.lance_travado = True
+            
         elif self.lance_travado:
+            
             self.aplicar_tacada(self.table.bola_branca, self.intensidade, self.angulo_travado)
             self.intensidade = 0
             self.lance_travado = False
