@@ -1,91 +1,89 @@
-from  utils.PhysicsEnvironment import PhysicsEnvironment
+from utils.PhysicsEnvironment import PhysicsEnvironment
 
 class Ball:
+    '''
+    Classe que representa uma bola de sinuca com características como número, raio, massa, posição,
+    velocidade e rotação. A bola pode ser movimentada aplicando forças e é afetada por efeitos físicos como atrito.
+    
+    Args:
+        numero (int): O número da bola (ex: 1-15 para bolas coloridas).
+        raio (float): O raio da bola (em metros).
+        massa (float): A massa da bola (em kg).
+        posicao (tuple): Posição inicial da bola na mesa, no formato (x, y).
+        velocidade (tuple): Velocidade inicial da bola, com componentes (vx, vy). Padrão é (0, 0).
+        rotação (float): Rotação inicial da bola (em radianos).
+    '''
+    
     def __init__(self, numero: int, raio: float, massa: float, posicao: tuple, velocidade: tuple = (0, 0), rotação: float = 0):
-        """
-        Inicializa uma bola de sinuca com número, raio, massa, posição e velocidade inicial.
-
-        Args:
-            numero (int): O número da bola (1-15, por exemplo).
-            raio (float): O raio da bola (geralmente em metros).
-            massa (float): A massa da bola (em kg).
-            posicao (tuple): A posição inicial da bola na mesa (x, y).
-            velocidade (tuple): A velocidade inicial da bola (vx, vy). Padrão é (0, 0).
-            rotação (float): A rotação inicial da bola em radianos.
-        """
         self.numero = numero
         self.raio = raio
         self.massa = massa
-        self.posicao = posicao  # Posição inicial da bola (x, y)
-        self.velocidade = velocidade  # Velocidade (vx, vy)
-        self.aceleracao = (0, 0)  # Aceleração (ax, ay)
-        self.rotação = rotação  # Rotação da bola (efeito)
-        self.spin = 0  # Spin da bola (efeito aplicado no movimento)
-    
-    def aplicar_forca(self, forca: tuple, dt: float):
-        """
-        Aplica uma força à bola e ajusta sua aceleração e velocidade de acordo.
+        self.posicao = posicao
+        self.velocidade = velocidade
+        self.aceleracao = (0, 0)
+        self.rotação = rotação
+        self.spin = 0
 
+    def aplicar_forca(self, forca: tuple, dt: float):
+        '''
+        Aplica uma força à bola, ajustando sua aceleração e velocidade de acordo com a segunda lei de Newton.
+        
         Args:
-            forca (tuple): A força aplicada na bola (fx, fy) em Newtons.
-            dt (float): O intervalo de tempo para o qual a força é aplicada (em segundos).
-        """
-        # Aceleração resultante da força aplicada (F = m * a => a = F / m)
+            forca (tuple): Força aplicada à bola nas direções (fx, fy), em Newtons.
+            dt (float): Intervalo de tempo em segundos durante o qual a força é aplicada.
+        '''
         ax = forca[0] / self.massa
         ay = forca[1] / self.massa
         self.aceleracao = (ax, ay)
         
-        # Atualiza a velocidade da bola com a aceleração
         self.velocidade = (
             self.velocidade[0] + self.aceleracao[0] * dt,
             self.velocidade[1] + self.aceleracao[1] * dt
         )
     
     def atualizar_posicao(self, dt: float, ambiente_fisico: PhysicsEnvironment):
-        """
-        Atualiza a posição da bola considerando a velocidade e o tempo decorrido, além de atrito e resistência.
-
+        '''
+        Atualiza a posição da bola levando em consideração a velocidade atual, o atrito e a resistência do ar.
+        
         Args:
-            dt (float): Intervalo de tempo para atualização (em segundos).
-            ambiente_fisico (PhysicsEnvironment): O ambiente físico que afeta o movimento da bola.
-        """
-        # Aplica atrito e resistência do ar
+            dt (float): Intervalo de tempo para atualização, em segundos.
+            ambiente_fisico (PhysicsEnvironment): Ambiente físico que define atrito e resistência.
+        '''
         self.velocidade = ambiente_fisico.aplicar_atrito(self.velocidade)
         self.velocidade = ambiente_fisico.aplicar_resistencia_ar(self.velocidade)
 
         if self.velocidade[0] ** 2 + self.velocidade[1] ** 2 < 0.01:
             self.velocidade = (0, 0)
 
-        # Atualiza a posição levando em conta a velocidade e o tempo
         self.posicao = (
             self.posicao[0] + self.velocidade[0] * dt,
             self.posicao[1] + self.velocidade[1] * dt
         )
-        
-        # Aplica o spin ao movimento
+
         self.aplicar_spin(dt)
 
     def aplicar_spin(self, dt: float):
-        """
-        Aplica o efeito de rotação da bola (spin) ao movimento, afetando a trajetória.
-
+        '''
+        Aplica o efeito de rotação (spin) no movimento da bola, alterando levemente sua trajetória.
+        
         Args:
-            dt (float): Intervalo de tempo para atualização (em segundos).
-        """
-        # O spin afeta a trajetória da bola, aplicando uma leve alteração
-        spin_efeito = self.spin * 0.05  # Escala o efeito do spin
+            dt (float): Intervalo de tempo para aplicar o spin, em segundos.
+        '''
+        spin_efeito = self.spin * 0.05
         self.velocidade = (
             self.velocidade[0] + spin_efeito * dt,
             self.velocidade[1] - spin_efeito * dt
         )
 
 
-
 def criar_bolas(table):
-    """
-    Função para inicializar as bolas com posições e cores adequadas em um formato triangular,
-    no canto superior direito da mesa, independentemente da posição da mesa.
-    """
+    '''
+    Inicializa as bolas de sinuca e as posiciona em formato triangular no canto superior direito da mesa.
+    Cada bola recebe uma cor e é adicionada à mesa de jogo.
+    
+    Args:
+        table (Table): A mesa de sinuca onde as bolas serão posicionadas.
+    '''
     cores = [
         (255, 255, 0),    # Amarelo
         (255, 0, 0),      # Vermelho
@@ -96,7 +94,6 @@ def criar_bolas(table):
         (255, 165, 0),    # Laranja
         (139, 69, 19),    # Marrom
         (255, 255, 255),  # Bola Branca
-        # Listradas
         (255, 192, 203),  # Listrada rosa
         (0, 128, 128),    # Listrada ciano
         (128, 0, 128),    # Listrada roxa
@@ -104,33 +101,33 @@ def criar_bolas(table):
 
     raio_bola = 10
     massa_bola = 1
-    espaco_entre_bolas = 2  # Espaço extra entre as bolas para evitar sobreposição
+    espaco_entre_bolas = 2
 
-    # Coordenadas iniciais para o triângulo de bolas no canto superior direito da mesa
-    x_inicial = table.x_start + table.largura - (5 * raio_bola * 2) - espaco_entre_bolas  # Deixa espaço no lado direito da mesa
-    y_inicial = table.y_start + (raio_bola * 2)  # Posiciona logo abaixo do topo da mesa
+    # Coordenadas ajustadas para centralizar no eixo y e deslocar um pouco mais à direita no eixo x
+    x_inicial = table.x_start + table.largura * 0.7
+    y_inicial = table.y_start + table.altura / 2 - (3 * raio_bola)
 
     contador_bola = 0
     for linha in range(5):
         for i in range(linha + 1):
-            # Calcula a posição de cada bola, com espaçamento adequado
             x_pos = x_inicial + (linha * (raio_bola * 2 + espaco_entre_bolas))
             y_pos = y_inicial + (i * (raio_bola * 2 + espaco_entre_bolas)) + (linha * raio_bola)
             bola = Ball(numero=contador_bola + 1, raio=raio_bola, massa=massa_bola, posicao=(x_pos, y_pos))
-            bola.velocidade = (0, 0)  # Todas começam paradas
-            bola.cor = cores[contador_bola % len(cores)]  # Atribui uma cor para cada bola
+            bola.velocidade = (0, 0)
+            bola.cor = cores[contador_bola % len(cores)]
             table.bolas.append(bola)
             contador_bola += 1
 
 
 def iniciar_bola_branca(table):
-    """
-    Função para inicializar a bola branca na posição correta e com uma velocidade inicial.
-    """
-    bola_branca = Ball(numero=0, raio=10, massa=1.05, posicao=(150, 500))  
-    bola_branca.velocidade = (100, 30)  
-    bola_branca.velocidade = (100, 100)  
-    bola_branca.cor = (255, 255, 255)  
+    '''
+    Inicializa a bola branca em uma posição específica na mesa e define sua velocidade inicial.
+    
+    Args:
+        table (Table): A mesa onde a bola branca será posicionada.
+    '''
+    bola_branca = Ball(numero=0, raio=10, massa=1.05, posicao=(150, 500))
+    bola_branca.velocidade = (100, 100)
+    bola_branca.cor = (255, 255, 255)
     table.bolas.append(bola_branca)
     table.bola_branca = bola_branca
-    

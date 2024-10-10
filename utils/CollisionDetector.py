@@ -2,31 +2,46 @@ import math
 from utils.Ball import Ball
 
 class CollisionDetector:
+    '''
+    Classe responsável por detectar e resolver colisões entre bolas e entre bolas e as bordas da mesa.
+    
+    Args:
+        elasticidade (float): Fator de elasticidade que define quanto da energia é conservada após uma colisão. Padrão é 0.95.
+    '''
+    
     def __init__(self, elasticidade: float = 0.95):
-        """
+        '''
         Inicializa o detector de colisões com um fator de elasticidade.
-        """
+        '''
         self.elasticidade = elasticidade
 
     def detectar_colisao_bolas(self, bola1: Ball, bola2: Ball) -> bool:
-        """
+        '''
         Verifica se duas bolas colidiram.
-        A colisão é detectada se a distância entre os centros das bolas
-        for menor ou igual à soma de seus raios.
-        """
+        A colisão é detectada se a distância entre os centros das bolas for menor ou igual à soma de seus raios.
+        
+        Args:
+            bola1 (Ball): Primeira bola a ser verificada.
+            bola2 (Ball): Segunda bola a ser verificada.
+        
+        Returns:
+            bool: True se as bolas colidirem, False caso contrário.
+        '''
         dist_x = bola1.posicao[0] - bola2.posicao[0]
         dist_y = bola1.posicao[1] - bola2.posicao[1]
         distancia = math.sqrt(dist_x**2 + dist_y**2)
         return distancia <= (bola1.raio + bola2.raio)
 
     def resolver_colisao_bolas(self, bola1: Ball, bola2: Ball):
-        """
-        Resolve a colisão entre duas bolas, ajustando suas velocidades
-        de acordo com a conservação do momento linear e energia.
-        A velocidade normal é trocada entre as bolas, enquanto a
-        velocidade tangencial permanece a mesma. Um fator de elasticidade
-        é aplicado para reduzir a energia em colisões imperfeitas.
-        """
+        '''
+        Resolve a colisão entre duas bolas, ajustando suas velocidades de acordo com a conservação do momento linear e energia.
+        A velocidade normal é trocada entre as bolas, enquanto a velocidade tangencial permanece a mesma. 
+        Um fator de elasticidade é aplicado para reduzir a energia em colisões imperfeitas.
+        
+        Args:
+            bola1 (Ball): Primeira bola envolvida na colisão.
+            bola2 (Ball): Segunda bola envolvida na colisão.
+        '''
         dist_x = bola1.posicao[0] - bola2.posicao[0]
         dist_y = bola1.posicao[1] - bola2.posicao[1]
         distancia = math.sqrt(dist_x**2 + dist_y**2)
@@ -69,7 +84,6 @@ class CollisionDetector:
             bola2.velocidade[1] * self.elasticidade
         )
 
-        
         overlap = bola1.raio + bola2.raio - distancia
         if overlap > 0:
             bola1.posicao = (
@@ -82,18 +96,18 @@ class CollisionDetector:
             )
 
     def detectar_colisao_borda(self, bola: Ball, x_start: float, y_start: float, largura: float, altura: float):
-        """
+        '''
         Verifica e resolve a colisão entre uma bola e as bordas da mesa.
-        Caso a bola colida com as bordas, sua velocidade é invertida e
-        o fator de elasticidade é aplicado, reduzindo a energia da bola.
-
+        Caso a bola colida com as bordas, sua velocidade é invertida e o fator de elasticidade é aplicado, 
+        reduzindo a energia da bola.
+        
         Args:
             bola (Ball): A bola para verificar a colisão.
             x_start (float): Posição inicial no eixo x da mesa.
             y_start (float): Posição inicial no eixo y da mesa.
             largura (float): Largura da mesa.
             altura (float): Altura da mesa.
-        """
+        '''
         
         if bola.posicao[0] - bola.raio < x_start:
             bola.posicao = (x_start + bola.raio, bola.posicao[1])  
