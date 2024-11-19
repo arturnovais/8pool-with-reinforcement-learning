@@ -30,8 +30,6 @@ class GAME:
     def run_game(self):
         
         while True:
-            self.jogador_atual = not self.jogador_atual
-            
             print("Iniciando jogada", self.jogador_atual)
             
             while not self.iniciou_jogada:
@@ -39,19 +37,11 @@ class GAME:
             information = self.table.step(angulo=self.iniciou_jogada_angulo,
                                     intensidade=self.inicou_jogada_intensidade)
             
-            
-            if len(information['colisoes']) > 0:
-                
-                assert 0 in [information['colisoes'][0][0].numero,
-                             information['colisoes'][0][1].numero,
-                             ]
-                    
             print(information)
             
-            # -> 
             # se a primeira colisao foi na bola dele
+                # repete a jogada
             
-                    
             # se o jogador derrubou uma bola dele
                 # repete a jogada
                 
@@ -70,6 +60,7 @@ class GAME:
             
             print("terminou a jogada")
             self.iniciou_jogada = False
+            self.jogador_atual = not self.jogador_atual
         
             
 
