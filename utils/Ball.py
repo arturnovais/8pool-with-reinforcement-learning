@@ -1,6 +1,7 @@
 import pygame
 from utils.PhysicsEnvironment import PhysicsEnvironment
 import utils.config as  cfg
+import random
 
 class Ball:
     '''
@@ -26,6 +27,7 @@ class Ball:
         self.aceleracao = (0, 0)
         self.rotação = rotação
         self.spin = 0
+        self.player = -1
 
         self.visual_raio = raio * 2  # Raio visual para o dobro do tamanho
         if imagem is not None:
@@ -108,22 +110,34 @@ def criar_bolas(table):
     Args:
         table (Table): A mesa de sinuca onde as bolas serão posicionadas.
     '''
-    raio_bola = 10  # Aumente o raio da bola
-    massa_bola = 1
+    raio_bola = cfg.bola_raio  # Aumente o raio da bola
+    massa_bola = cfg.bola_massa
     espaco_entre_bolas = 5  # Aumentar o espaçamento entre as bolas para evitar sobreposição
 
     # Coordenadas ajustadas para centralizar no eixo y e deslocar um pouco mais à direita no eixo x
     x_inicial = table.x_start + table.largura * 0.7
     y_inicial = table.y_start + table.altura / 2 - (3 * raio_bola)
 
-    contador_bola = 0
+    
+    
+    positions = []
     for linha in range(5):
+        if linha == 0:
+            continue
+        
         for i in range(linha + 1):
             x_pos = x_inicial + (linha * (raio_bola * 2 + espaco_entre_bolas))
-            y_pos = y_inicial + (i * (raio_bola * 2 + espaco_entre_bolas)) + (linha * raio_bola)
+            y_pos = table.y_start + (table.altura / 2) - ((linha) * (raio_bola * 2 + espaco_entre_bolas))/2
+            y_pos += i * (raio_bola * 2 + espaco_entre_bolas)
+            positions += [(x_pos, y_pos)]
+    random.shuffle(positions)
+    
+    
+    positions_ball_1= (table.x_start + cfg.bola_branca_raio+1,cfg.bola_branca_posicao_inicial[1])
+    positions =  [positions_ball_1] + positions
             
-            # Carrega a imagem correspondente ao número da bola
-            if contador_bola == 0:
+    for contador_bola, position in enumerate(positions,start=1):
+            if contador_bola == 1:
                 imagem_bola = 1
             elif contador_bola % 2 != 0:
                 imagem_bola = 3
@@ -133,10 +147,9 @@ def criar_bolas(table):
             imagem_bola = carregar_imagem_bola(imagem_bola)
             
             # Cria a bola com a imagem redimensionada para o novo raio
-            bola = Ball(numero=contador_bola + 1, raio=raio_bola, massa=massa_bola, posicao=(x_pos, y_pos), imagem=imagem_bola)
+            bola = Ball(numero=contador_bola, raio=raio_bola, massa=massa_bola, posicao=position, imagem=imagem_bola)
             bola.velocidade = (0, 0)
             table.bolas.append(bola)
-            contador_bola += 1
 
 def iniciar_bola_branca(table):
     '''

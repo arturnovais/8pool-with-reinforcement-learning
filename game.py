@@ -1,6 +1,5 @@
 
 from utils.Table import Table
-
 from utils.PhysicsEnvironment import PhysicsEnvironment
 from utils.button import button
 import utils.config as cfg
@@ -26,20 +25,22 @@ class GAME:
         self.iniciou_jogada_angulo = 0
         self.inicou_jogada_intensidade = 0
             
-
-    def run_game(self):
+    def rules(self, information, idx_player):
+        # funcao que verifica as regras do jogo
         
-        while True:
-            print("Iniciando jogada", self.jogador_atual)
-            
-            while not self.iniciou_jogada:
-                    self.table.draw() 
-            information = self.table.step(angulo=self.iniciou_jogada_angulo,
-                                    intensidade=self.inicou_jogada_intensidade)
-            
-            print(information)
-            
-            # se a primeira colisao foi na bola dele
+        table = self if type(self) == Table else self.table
+        
+        for ball in self.table.bolas:
+            print(ball.numero,  ball.posicao)
+        
+        
+        # algum jogador já fez suas bolas?
+        if len(self.table.bolas) == 16: #
+            pass
+        
+        
+        
+        # se a primeira colisao foi na bola dele
                 # repete a jogada
             
             # se o jogador derrubou uma bola dele
@@ -56,6 +57,23 @@ class GAME:
             
             # se ele derrubar a ultima bola 
                 # depende 
+            
+            
+            return information
+    
+    def run_game(self):
+        
+        while True:
+            print("Iniciando jogada", self.jogador_atual)
+            
+            while not self.iniciou_jogada:
+                    self.table.draw() 
+                    
+            information = self.table.step(angulo=self.iniciou_jogada_angulo,
+                                    intensidade=self.inicou_jogada_intensidade)
+            information = self.rules(information, self.jogador_atual)
+            print(information)
+            
             
             
             print("terminou a jogada")

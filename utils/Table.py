@@ -1,4 +1,4 @@
-import pygame
+import pygame, math
 from utils.PhysicsEnvironment import PhysicsEnvironment
 from utils.Ball import Ball
 from utils.Pocket import Pocket
@@ -64,10 +64,10 @@ class Table:
         raio_buraco = 13  # Buracos um pouco menores
         return [
             Pocket(posicao=(self.x_start + 5, self.y_start + 5), raio=raio_buraco),  # Canto superior esquerdo
-            Pocket(posicao=(self.x_start + self.largura / 2, self.y_start + 5), raio=raio_buraco),  # Meio superior
+            Pocket(posicao=(self.x_start + self.largura / 2, self.y_start - 3), raio=raio_buraco),  # Meio superior
             Pocket(posicao=(self.x_start + self.largura - 5, self.y_start + 5), raio=raio_buraco),  # Canto superior direito
             Pocket(posicao=(self.x_start + 5, self.y_start + self.altura - 5), raio=raio_buraco),  # Canto inferior esquerdo
-            Pocket(posicao=(self.x_start + self.largura / 2, self.y_start + self.altura - 5), raio=raio_buraco),  # Meio inferior
+            Pocket(posicao=(self.x_start + self.largura / 2, self.y_start + self.altura + 3), raio=raio_buraco),  # Meio inferior
             Pocket(posicao=(self.x_start + self.largura - 5, self.y_start + self.altura - 5), raio=raio_buraco)  # Canto inferior direito
         ]
         
@@ -109,11 +109,15 @@ class Table:
         Args:
             screen (pygame.Surface): Superfície onde os buracos serão desenhados.
         '''
+                
         for buraco in self.buracos:
             # Contorno metálico
-            pygame.draw.circle(screen, (169, 169, 169), (int(buraco.posicao[0]), int(buraco.posicao[1])), buraco.raio + 3)
-            # Buraco preto
-            pygame.draw.circle(screen, (0, 0, 0), (int(buraco.posicao[0]), int(buraco.posicao[1])), buraco.raio)
+            pygame.draw.circle(screen, (169, 169, 169), (int(buraco.posicao[0]), int(buraco.posicao[1])), buraco.raio)
+            
+            #desenhar_arco_preenchido(screen, (169, 169, 169), centro, raio, -0.3, math.pi+0.3, 10)
+            pygame.draw.circle(screen, (0, 0, 0), (int(buraco.posicao[0]), int(buraco.posicao[1])), buraco.raio-3)
+          
+
 
     def atualizar_estado_bola(self, bola: Ball, dt: float):
         '''
@@ -153,11 +157,13 @@ class Table:
 
         for bola in self.bolas:
             bola.atualizar_posicao(1, self.ambiente_fisico)
-            self.detecttor_colisao.detectar_colisao_borda(bola, self.x_start, self.y_start, self.largura, self.altura)
-
             if self.detectar_buraco(bola):
                 bolas_para_remover.append(bola)
                 self.informations['bolas_caidas'].append(bola)
+                
+            self.detecttor_colisao.detectar_colisao_borda(bola, self.x_start, self.y_start, self.largura, self.altura)
+
+
 
         for i in range(len(self.bolas)):
             for j in range(i + 1, len(self.bolas)):
@@ -241,7 +247,7 @@ class Table:
         
         
         pygame.display.flip()
-        self.clock.tick(60)
+        #self.clock.tick(60)
 
     
     
