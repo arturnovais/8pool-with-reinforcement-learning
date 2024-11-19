@@ -1,5 +1,6 @@
 import pygame
 from utils.PhysicsEnvironment import PhysicsEnvironment
+import utils.config as  cfg
 
 class Ball:
     '''
@@ -33,8 +34,6 @@ class Ball:
         else:
             self.imagem = None
 
-
-    
     def aplicar_forca(self, forca: tuple, dt: float):
         '''
         Aplica uma força à bola, ajustando sua aceleração e velocidade de acordo com a segunda lei de Newton.
@@ -142,8 +141,10 @@ def iniciar_bola_branca(table):
     # Carrega a imagem da bola branca
     imagem_bola_branca = carregar_imagem_bola(0)  # Supondo que a bola branca é "ball0.png"
     
-    raio_bola = 10  # Aumente o raio da bola branca também
-    bola_branca = Ball(numero=0, raio=raio_bola, massa=1.05, posicao=(150, 500), imagem=imagem_bola_branca)
-    bola_branca.velocidade = (100, 100)
+    bola_branca = Ball(numero=0, raio=cfg.bola_branca_raio, 
+                                 massa=cfg.bola_branca_massa, 
+                                 posicao=cfg.bola_branca_posicao_inicial, 
+                                 imagem=imagem_bola_branca)
+    bola_branca.velocidade = (0, 0)
     table.bolas.append(bola_branca)
     table.bola_branca = bola_branca

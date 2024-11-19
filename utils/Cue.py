@@ -17,6 +17,7 @@ class Cue:
         intensidade inicial da tacada e o controle de travamento de direção.
         '''
         self.table = table
+        self.table.taco = self
         self.força_maxima = força_maxima
         self.intensidade = 0
         self.intensidade_incremento = 0.01
@@ -75,6 +76,10 @@ class Cue:
                 x, y = self.table.bola_branca.posicao
                 mx, my = pygame.mouse.get_pos()
                 
+                nx = 2*x - mx
+                ny = 2*y - my
+                
+                #pygame.draw.line(screen, (88, 51, 0), (x, y), (nx, ny), 6)
                 pygame.draw.line(screen, (88, 51, 0), (x, y), (mx, my), 6)
 
             self.draw_intensidade_bar(screen)
@@ -99,7 +104,6 @@ class Cue:
         )
 
         pygame.draw.rect(screen, (255, 255, 255), (bar_x, bar_y, bar_width, bar_height), 2)
-
         filled_height = self.intensidade * bar_height
         pygame.draw.rect(screen, intensidade_color, (bar_x, bar_y + bar_height - filled_height, bar_width, filled_height))
 
