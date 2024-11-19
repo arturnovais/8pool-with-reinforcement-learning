@@ -51,9 +51,18 @@ class Cue:
             intensidade (float): A intensidade da tacada (0 a 1).
             angulo (float): O ângulo da tacada em radianos.
         '''
-        forca = self.calcular_forca(intensidade, angulo)
-        bola.aplicar_forca(forca, dt=0.1)
+        
 
+                
+        #forca = self.calcular_forca(intensidade, angulo)
+        #bola.aplicar_forca(forca, dt=0.1)
+
+        if self.table.game is not None:
+            self.table.game.iniciou_jogada = True
+            self.table.game.iniciou_jogada_angulo = angulo
+            self.table.game.inicou_jogada_intensidade = intensidade
+            
+            
     def is_enable(self) -> bool:
         '''
         Verifica se o taco está pronto para ser usado, ou seja, se a bola branca está parada.
@@ -61,7 +70,10 @@ class Cue:
         Returns:
             bool: True se a bola branca estiver parada, indicando que o taco pode ser usado.
         '''
-        return self.table.bola_branca.velocidade == (0, 0)
+        for ball in self.table.bolas:
+            if ball.velocidade != (0, 0):
+                return False
+        return True
 
     def draw(self, screen: pygame.Surface):
         '''
@@ -125,10 +137,12 @@ class Cue:
             self.lance_travado = True
             
         elif self.lance_travado:
-            
             self.aplicar_tacada(self.table.bola_branca, self.intensidade, self.angulo_travado)
+            
             self.intensidade = 0
             self.lance_travado = False
+
+
 
     def ajustar_intensidade_com_mouse(self, mouse_y, screen_height):
         '''

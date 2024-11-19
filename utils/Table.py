@@ -20,7 +20,7 @@ class Table:
         display_height (int): Altura da tela de exibição (em pixels).
     '''
     
-    def __init__(self, largura: float, altura: float, ambiente_fisico: PhysicsEnvironment, display_width, display_height, clock = None, taco = None, draw_game = True):
+    def __init__(self, largura: float, altura: float, ambiente_fisico: PhysicsEnvironment, display_width, display_height, clock = None, taco = None, draw_game = True, scoreboard=None, game=None):
         '''
         Inicializa a mesa de sinuca com suas dimensões, o ambiente físico, e define os buracos e as bolas.
         '''
@@ -50,7 +50,10 @@ class Table:
             pygame.display.set_caption("Sinuca")
             
         self.reset()
-
+        self.informations = {'colisoes' : [], 'bolas_caidas' : [] }
+        self.scoreboard = scoreboard
+        self.game = game
+        
     def definir_buracos(self) -> list:
         '''
         Define as posições e tamanhos dos seis buracos da mesa de sinuca.
@@ -154,11 +157,14 @@ class Table:
 
             if self.detectar_buraco(bola):
                 bolas_para_remover.append(bola)
+                self.informations['bolas_caidas'].append(bola)
 
         for i in range(len(self.bolas)):
             for j in range(i + 1, len(self.bolas)):
                 if self.detecttor_colisao.detectar_colisao_bolas(self.bolas[i], self.bolas[j]):
+                    self.informations['colisoes'].append((self.bolas[i], self.bolas[j]))
                     self.detecttor_colisao.resolver_colisao_bolas(self.bolas[i], self.bolas[j])
+                    
 
         # Remover bolas que caíram nos buracos
         if self.bola_branca in bolas_para_remover:
@@ -169,7 +175,13 @@ class Table:
                 self.bolas.remove(bola)
         
         
-        
+        terminou_jogada = True
+        for bola in self.bolas:
+            if bola.velocidade != (0, 0):
+                return False
+            
+        return True
+
         
     def reset(self):
         self.bolas = []
@@ -187,6 +199,9 @@ class Table:
         '''
         # Desenha as bordas de madeira da mesa
         self.screen.fill((0, 0, 0))
+        
+        if self.scoreboard is not None:
+            self.scoreboard.draw(self.screen)
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -227,3 +242,31 @@ class Table:
         
         pygame.display.flip()
         self.clock.tick(60)
+
+    
+    
+    def step(self, angulo = 10, intensidade = 1):
+        """
+            Função que executa um passo da simulação
+        """
+        self.informations = { 
+                             'colisoes' : [],
+                             'bolas_caidas' : [],
+                             }
+        
+        #self.taco.aplicar_tacada(self.bola_branca,angulo, intensidade)
+        
+        forca = self.taco.calcular_forca(intensidade, angulo)
+        self.bola_branca.aplicar_forca(forca, dt=0.1)
+        
+        while not self.exec_physics():
+            if self.draw_game:
+                self.draw()
+        
+        ############################## REALIZAR as REGRAS DE SINUCA APOS A JOGADA ##############################
+        
+        
+        
+                
+        self.informations['state'] = self.bolas
+        return self.informations

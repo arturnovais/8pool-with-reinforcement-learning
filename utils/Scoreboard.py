@@ -1,6 +1,6 @@
 from utils.Ball import Ball
 from utils.Player import Player
-
+import pygame
 class Scoreboard:
     '''
     Classe que gerencia o placar do jogo de sinuca, registrando bolas encaçapadas e alternando entre os jogadores.
@@ -9,13 +9,28 @@ class Scoreboard:
         jogadores (list): Uma lista de instâncias da classe Player representando os jogadores.
     '''
     
-    def __init__(self, jogadores: list):
+    def __init__(self, jogadores: list, game):
         '''
         Inicializa o placar do jogo de sinuca.
         '''
         self.jogadores = jogadores
-        self.bolas_encaçapadas = []
-        self.jogador_atual = 0
+        self.game = game
+        
+        
+        
+    def draw(self,screen):
+        # add players naem to the screen
+        pygame.font.init()
+        font = pygame.font.Font(None, 36)
+        
+        for i, player in enumerate(self.jogadores):    
+            cor = (255, 255, 255)
+            if self.game.jogador_atual == i:
+                cor = (255, 0, 0)
+            
+            text = font.render(self.jogadores[i], True, cor)
+            screen.blit(text, (10, 50*(i+1)))
+        
 
     def adicionar_pontos(self, jogador: Player, pontos: int):
         '''

@@ -123,7 +123,14 @@ def criar_bolas(table):
             y_pos = y_inicial + (i * (raio_bola * 2 + espaco_entre_bolas)) + (linha * raio_bola)
             
             # Carrega a imagem correspondente ao número da bola
-            imagem_bola = carregar_imagem_bola(contador_bola + 1)
+            if contador_bola == 0:
+                imagem_bola = 1
+            elif contador_bola % 2 != 0:
+                imagem_bola = 3
+            else:
+                imagem_bola =  2
+                
+            imagem_bola = carregar_imagem_bola(imagem_bola)
             
             # Cria a bola com a imagem redimensionada para o novo raio
             bola = Ball(numero=contador_bola + 1, raio=raio_bola, massa=massa_bola, posicao=(x_pos, y_pos), imagem=imagem_bola)
