@@ -105,7 +105,7 @@ class Cue:
         Args:
             screen (pygame.Surface): A superfície de jogo onde a barra será desenhada.
         '''
-        bar_x = cfg.display_table_width + 0.2 * cfg.display_width
+        bar_x = cfg.display_width - (0.2 * cfg.display_table_width // 2)
         bar_y = cfg.display_height // 2 - 200
         bar_width = 30
         bar_height = 400
