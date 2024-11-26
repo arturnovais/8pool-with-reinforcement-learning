@@ -78,51 +78,65 @@ class Cue:
 
     def draw(self, screen: pygame.Surface):
         '''
-        Desenha o taco e a barra lateral de intensidade na tela do jogo.
-        Se a direção da tacada não estiver travada, o taco segue a posição do mouse.
+        Desenha o taco e as linhas pontilhadas na direção da bola até o fim da mesa.
 
         Args:
             screen (pygame.Surface): A superfície de jogo onde os elementos serão desenhados.
         '''
         if self.is_enable():
             if not self.lance_travado:
+                # Posição da bola branca
                 x, y = self.table.bola_branca.posicao
+                # Posição do mouse
                 mx, my = pygame.mouse.get_pos()
                 
-                nx = 2*x - mx
-                ny = 2*y - my
-                
-                
-                pygame.draw.line(screen, (88, 51, 0), (x, y), (nx, ny), 6)
-
-            # Direção da linha pontilhada (vetor normalizado)
-                dx = mx - x
-                dy = my - y
+                # Vetor da tacada (bola para o mouse)
+                dx = -(mx - x)
+                dy = -(my - y)
                 length = (dx**2 + dy**2)**0.5  # Comprimento do vetor
                 if length != 0:  # Evitar divisão por zero
                     dx /= length
                     dy /= length
 
-            # Desenhar linha pontilhada na direção do mouse
+                # Calculando a linha pontilhada até o fim da mesa
                 dash_length = 10  # Tamanho de cada traço
                 gap_length = 5    # Espaço entre os traços
-                max_length = 800  # Distância máxima para as linhas (pode ser o tamanho da mesa)
-            
                 start_x, start_y = x, y
-                for i in range(0, max_length, dash_length + gap_length):
-                # Calcula o início e o fim de cada segmento
+
+                # Encontrar os limites da mesa
+                table_left = (1400 - 800) // 2
+                table_right = table_left + 800
+                table_top = (800 - 400) // 2
+                table_bottom = table_top + 400
+
+                while table_left <= start_x <= table_right and table_top <= start_y <= table_bottom:
+                    # Calcula o fim do traço
                     end_x = start_x + dx * dash_length
                     end_y = start_y + dy * dash_length
-                    pygame.draw.line(screen, (0, 0, 0), (start_x, start_y), (end_x, end_y), 2)
-                
-                # Avança para o próximo traço
+                    
+                    # Desenha o traço se ele está dentro dos limites
+                    if table_left <= end_x <= table_right and table_top <= end_y <= table_bottom:
+                        pygame.draw.line(screen, (0, 0, 0), (start_x, start_y), (end_x, end_y), 2)
+
+                    # Avança para o próximo traço
                     start_x = end_x + dx * gap_length
                     start_y = end_y + dy * gap_length
-                
-                #pygame.draw.line(screen, (88, 51, 0), (x, y), (nx, ny), 6)
-                #pygame.draw.line(screen, (88, 51, 0), (x, y), (mx, my), 6)
 
+                # Taco na direção oposta (afastado da bola)
+                taco_length = 100  # Comprimento do taco
+                offset = 20         # Distância entre a bola e o início do taco
+                taco_start_x = x - dx * offset
+                taco_start_y = y - dy * offset
+                taco_end_x = x - dx * (offset + taco_length)
+                taco_end_y = y - dy * (offset + taco_length)
+
+                pygame.draw.line(screen, (88, 51, 0), (taco_start_x, taco_start_y), (taco_end_x, taco_end_y), 6)
+
+            # Desenhar a barra de intensidade
             self.draw_intensidade_bar(screen)
+
+
+
 
     def draw_intensidade_bar(self, screen: pygame.Surface):
         '''
