@@ -11,4 +11,5 @@ bola_branca_massa = 1.05
 
 bola_raio  = 10
 bola_massa = 1
-    
+
+raio_buraco = 40

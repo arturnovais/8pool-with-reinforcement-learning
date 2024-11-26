@@ -39,6 +39,7 @@ class GAME:
         table = self if type(self) == Table else self.table
         
         bolas_caidas_sem_branca = [b for b in information['bolas_caidas'] if b.numero!= 0]
+        fez_bola_branca = 0 in [b.numero for b in information['bolas_caidas']]
         
         # algum jogador já fez suas bolas?
         
@@ -49,7 +50,7 @@ class GAME:
         
         if len(self.table.bolas) == 16:
             #Ninguem fez nenhuma bola ainda
-            pass
+            return information
         
         elif (len(self.table.bolas) + len(bolas_caidas_sem_branca) == 16):
             """
@@ -60,7 +61,7 @@ class GAME:
             
             bolas_jogador    = [2,4,6,8,10,12,14]
             bolas_adversario = [3,5,7,9,11,13,15]
-            if first_ball != 0:
+            if first_ball % 2 != 0:
                 bolas_jogador    = [3,5,7,9,11,13,15]
                 bolas_adversario = [2,4,6,8,10,12,14]
             
@@ -77,6 +78,9 @@ class GAME:
                 else:
                     information['perdeu'] = True
                     return information
+                
+            ###############################################################################
+            #######  verifica se ele deve jogar novament e / ou pagar uma bola       ######
 
             # se ele fez uma bola do adversario ele passa a vez
             fez_adversario = False
@@ -84,33 +88,71 @@ class GAME:
                 if b.numero in bolas_adversario:
                     fez_adversario = True
             
-            fez_bola_branca = 0 in [b.numero for b in information['bolas_caidas']]
+            
             if fez_bola_branca:
                 information['penalizado'] = True
             elif not fez_adversario:
                 information['joga_novamente'] = True
 
+            
+            information['bolas_jogador'] = bolas_jogador
+            information['bolas_adversario'] = bolas_adversario
             return information
         else: 
             bolas_jogador = self.numero_bolas[idx_player]
+            bolas_adversario = self.numero_bolas[1-idx_player]
             
-            
+            information['bolas_jogador'] = bolas_jogador
+            information['bolas_adversario'] = bolas_adversario
             
             
             # verifica a primeira colisao
             colisao_ok = False
             if len(information['colisoes']) > 0:
+                
+                # TODO: verificar se bateu na bola 1
+                
                 first_colision = information['colisoes'][0]
                 fisrt_colision_numero = first_colision[0].numero if first_colision[0].numero != 0 else first_colision[1].numero
 
+                bolas_jogador_mesa  = [b for b in self.table.bolas if b.numero in bolas_jogador]
                 if fisrt_colision_numero in bolas_jogador:
                     colisao_ok = True
-
-            if not colisao_ok:
+                    
+                if len(bolas_jogador_mesa) ==0:
+                    if fisrt_colision_numero != 1:
+                        information['penalizado'] = True
+    
+            
+            if (not colisao_ok) or (fez_bola_branca):
                 information['penalizado'] = True
-                False
-        
-        
+            else:
+
+                for bola in bolas_caidas_sem_branca:
+                    if bola.numero in bolas_adversario:
+                        information['penalizado'] = True
+                    if bola.numero in bolas_jogador:
+                        information['joga_novamente'] = True
+                        
+    
+                if information['joga_novamente'] and information['penalizado']:
+                    information['joga_novamente'] = False
+                else:
+                    # TODO: verifica se precisa adicionar a bola 1 na lista do jogador
+                    pass
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
             # Algum jogador já fez pelo menos uma bola
             print("AS BOLAS ESTAO DEFINIDAS PARA CADA JOGADOR")
         
@@ -136,6 +178,11 @@ class GAME:
             
             return information
     
+        return information
+
+        
+        
+          
     def run_game(self):
         
         while True:
@@ -146,15 +193,61 @@ class GAME:
                     
             information = self.table.step(angulo=self.iniciou_jogada_angulo,
                                     intensidade=self.inicou_jogada_intensidade)
+            information['final'] = False
             information = self.rules(information, self.jogador_atual)
+            
+            
             print(information)
             
             
+            #################################################################
+            ########### Executa as regras do jogo ############################
+            if information['perdeu']:
+                break
+            elif information['ganhou']:
+                break
+            elif information['penalizado']:
+                # derruba uma bola do adversario
+                bolas_mesa_adversario = [b for b in self.table.bolas if b.numero in self.numero_bolas[1-self.jogador_atual]]
+                # remove a bola da mesa
+                if len(bolas_mesa_adversario) > 0:
+                    self.table.bolas.remove(bolas_mesa_adversario[0])
+                else:
+                    print("Nao tem mais bolas do adversario na mesa")
+                    print("perdeu")
+                    information['perdeu'] = True
             
+                information['joaga_novamente'] = False
+            
+            
+            # verifica se o jogador derrubou todas as bolas e nao tem a bola 1
+            bola_1_na_mesa = 1 in [bola.numero for bola in self.table.bolas]
+            bola_mesa_jogador = [b for b in self.table.bolas if b.numero in self.numero_bolas[self.jogador_atual]]
+            
+            if not bola_1_na_mesa:
+                if len(bola_mesa_jogador) == 0:
+                    information['ganhou'] = True
+                else:
+                    information['perdeu'] = True
+                    
+                break
+            
+            if not information['joga_novamente']:
+                self.jogador_atual = not self.jogador_atual
+
             print("terminou a jogada")
             self.iniciou_jogada = False
-            self.jogador_atual = not self.jogador_atual
+            
         
+        # episodio_final
+        information['final']= True
+        print("Fim de jogo")
+        self.iniciou_jogada = True
+        if information['ganhou']:
+            print("Jogador", self.jogador_atual, "Ganhou")
+        elif information['perdeu']:
+            print("Jogador", self.jogador_atual, "Perdeu")
+
             
 
 

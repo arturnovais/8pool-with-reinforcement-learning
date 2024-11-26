@@ -28,7 +28,13 @@ class Scoreboard:
             if self.game.jogador_atual == i:
                 cor = (255, 0, 0)
             
-            text = font.render(self.jogadores[i], True, cor)
+            
+            bolas_jogador = [ b for b in self.game.numero_bolas[i] ]
+            
+            # quantas bolas_jogador está na mesa
+            bolas_jogador_mesa = [b.numero for b in self.game.table.bolas if b.numero in bolas_jogador]
+            
+            text = font.render(self.jogadores[i]+f'  {len(bolas_jogador_mesa)}/{len(bolas_jogador)}', True, cor)
             screen.blit(text, (10, 50*(i+1)))
         
 

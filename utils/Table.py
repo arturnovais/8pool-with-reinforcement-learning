@@ -61,7 +61,7 @@ class Table:
         Returns:
             list: Lista de instâncias de Pocket representando os buracos da mesa.
         '''
-        raio_buraco = 13  # Buracos um pouco menores
+        raio_buraco = cfg.raio_buraco  # Buracos um pouco menores
         return [
             Pocket(posicao=(self.x_start + 5, self.y_start + 5), raio=raio_buraco),  # Canto superior esquerdo
             Pocket(posicao=(self.x_start + self.largura / 2, self.y_start - 3), raio=raio_buraco),  # Meio superior
