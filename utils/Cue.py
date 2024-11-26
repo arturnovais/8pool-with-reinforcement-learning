@@ -92,8 +92,35 @@ class Cue:
                 nx = 2*x - mx
                 ny = 2*y - my
                 
+                
+                pygame.draw.line(screen, (88, 51, 0), (x, y), (nx, ny), 6)
+
+            # Direção da linha pontilhada (vetor normalizado)
+                dx = mx - x
+                dy = my - y
+                length = (dx**2 + dy**2)**0.5  # Comprimento do vetor
+                if length != 0:  # Evitar divisão por zero
+                    dx /= length
+                    dy /= length
+
+            # Desenhar linha pontilhada na direção do mouse
+                dash_length = 10  # Tamanho de cada traço
+                gap_length = 5    # Espaço entre os traços
+                max_length = 800  # Distância máxima para as linhas (pode ser o tamanho da mesa)
+            
+                start_x, start_y = x, y
+                for i in range(0, max_length, dash_length + gap_length):
+                # Calcula o início e o fim de cada segmento
+                    end_x = start_x + dx * dash_length
+                    end_y = start_y + dy * dash_length
+                    pygame.draw.line(screen, (0, 0, 0), (start_x, start_y), (end_x, end_y), 2)
+                
+                # Avança para o próximo traço
+                    start_x = end_x + dx * gap_length
+                    start_y = end_y + dy * gap_length
+                
                 #pygame.draw.line(screen, (88, 51, 0), (x, y), (nx, ny), 6)
-                pygame.draw.line(screen, (88, 51, 0), (x, y), (mx, my), 6)
+                #pygame.draw.line(screen, (88, 51, 0), (x, y), (mx, my), 6)
 
             self.draw_intensidade_bar(screen)
 

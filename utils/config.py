@@ -13,3 +13,6 @@ bola_raio  = 10
 bola_massa = 1
 
 raio_buraco = 40
+
+apply_image = True
+background_image = 'imgs/Background/modo-serio-mamaco.gif'

@@ -49,6 +49,15 @@ class Table:
             self.screen = pygame.display.set_mode((display_width, display_height))
             pygame.display.set_caption("Sinuca")
             
+            self.background_image = (
+                pygame.transform.scale(
+                    pygame.image.load(cfg.background_image).convert_alpha(),
+                    (cfg.display_width, cfg.display_height)
+                )
+                if cfg.apply_image
+                else None
+            )
+            
         self.reset()
         self.informations = {'colisoes' : [], 'bolas_caidas' : [] }
         self.scoreboard = scoreboard
@@ -203,8 +212,10 @@ class Table:
         Args:
             screen (pygame.Surface): Superfície onde a mesa será desenhada.
         '''
-        # Desenha as bordas de madeira da mesa
-        self.screen.fill((0, 0, 0))
+        # Desenha fundo
+        
+        self.screen.fill((10, 220, 245))
+        self.screen.blit(self.background_image, (0,0))
         
         if self.scoreboard is not None:
             self.scoreboard.draw(self.screen)
