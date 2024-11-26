@@ -1,6 +1,6 @@
 
 from utils.Table import Table
-
+import time
 from utils.PhysicsEnvironment import PhysicsEnvironment
 from utils.button import button
 import utils.config as cfg
@@ -23,9 +23,9 @@ def main():
     
     table.reset()
     print("STATER GAME")
-    information = table.step(10,1)    
-    
-    
+    information = table.step(30,1)    
+    information = table.step(180,1)    
+
 if __name__ == "__main__":
     '''
     Ponto de entrada do programa.
