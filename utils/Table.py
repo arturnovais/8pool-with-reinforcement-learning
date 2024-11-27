@@ -54,7 +54,7 @@ class Table:
                     pygame.image.load(cfg.background_image).convert_alpha(),
                     (cfg.display_width, cfg.display_height)
                 )
-                if cfg.apply_image
+                if cfg.apply_background
                 else None
             )
             
@@ -215,7 +215,8 @@ class Table:
         # Desenha fundo
         
         self.screen.fill((10, 220, 245))
-        self.screen.blit(self.background_image, (0,0))
+        if cfg.apply_background:
+            self.screen.blit(self.background_image, (0,0))
         
         if self.scoreboard is not None:
             self.scoreboard.draw(self.screen)

@@ -14,5 +14,8 @@ bola_massa = 1
 
 raio_buraco = 40
 
-apply_image = True
-background_image = 'imgs/Background/modo-serio-mamaco.gif'
+apply_background = True
+background_image = 'imgs/Background/bar1.jpg'
+
+apply_cue = True
+cue_image = 'imgs/Cue/cue.png'

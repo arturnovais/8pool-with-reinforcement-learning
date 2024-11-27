@@ -24,6 +24,7 @@ class Cue:
         self.intensidade_incremento = 0.01
         self.lance_travado = False
         self.angulo_travado = None
+        #self.image = pygame.image.load(cfg.cue_image).convert_alpha()
 
     def calcular_forca(self, intensidade: float, angulo: float) -> tuple:
         '''
