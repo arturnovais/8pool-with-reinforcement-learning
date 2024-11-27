@@ -5,6 +5,9 @@ from utils.button import button
 import utils.config as cfg
 from utils.Scoreboard import Scoreboard
 
+from interface.initial_screen import InitialScreen
+
+
 class GAME:
     
     
@@ -254,9 +257,14 @@ class GAME:
 
 
 def main():
-    game = GAME()
+    initial_screen = InitialScreen()
+    start_game = initial_screen.run()
+
+    # Se o botão "Jogar" for clicado, inicia o jogo
+    if start_game:
+        game = GAME()
+        game.run_game()
     
-    game.run_game()
     
     
 if __name__ == "__main__":

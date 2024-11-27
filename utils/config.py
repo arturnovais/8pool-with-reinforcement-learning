@@ -22,3 +22,6 @@ apply_cue = True
 cue_image = 'imgs/Cue/cue.png'
 cue_width = 200
 cue_height = 60
+
+
+initial_screen_background = 'imgs/Background/bar1.jpg'
