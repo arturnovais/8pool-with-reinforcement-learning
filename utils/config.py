@@ -24,4 +24,5 @@ cue_width = 200
 cue_height = 60
 
 
+initial_screen = True
 initial_screen_background = 'imgs/Background/bar1.jpg'

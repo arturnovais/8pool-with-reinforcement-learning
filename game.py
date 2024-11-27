@@ -11,9 +11,9 @@ from interface.initial_screen import InitialScreen
 class GAME:
     
     
-    def __init__(self):
+    def __init__(self, players_names):
         
-        self.Scoreboard = Scoreboard(['Player 1', 'Player 2'],game=self)
+        self.Scoreboard = Scoreboard(players_names,game=self)
         self.table = Table(cfg.display_table_width, cfg.display_table_height, 
                   ambiente_fisico= PhysicsEnvironment(),
                   display_width = cfg.display_width, 
@@ -257,11 +257,14 @@ class GAME:
 
 
 def main():
-    initial_screen = InitialScreen()
-    start_game = initial_screen.run()
-
-    # Se o botão "Jogar" for clicado, inicia o jogo
-    if start_game:
+    
+    if cfg.initial_screen:
+        initial_screen = InitialScreen()
+        player_names = initial_screen.run()
+        print('PLAYERS:', player_names)
+        game = GAME(players_names=player_names)
+        game.run_game()
+    else:
         game = GAME()
         game.run_game()
     
