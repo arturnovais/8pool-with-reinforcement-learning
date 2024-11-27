@@ -11,7 +11,7 @@ from interface.initial_screen import InitialScreen
 class GAME:
     
     
-    def __init__(self, players_names):
+    def __init__(self, players_names, background):
         
         self.Scoreboard = Scoreboard(players_names,game=self)
         self.table = Table(cfg.display_table_width, cfg.display_table_height, 
@@ -20,6 +20,7 @@ class GAME:
                   display_height = cfg.display_height,
                   draw_game=True,
                   scoreboard=self.Scoreboard,
+                  background=background,
                   game = self)
         self.table.reset()
 
@@ -260,9 +261,9 @@ def main():
     
     if cfg.initial_screen:
         initial_screen = InitialScreen()
-        player_names = initial_screen.run()
+        player_names, background = initial_screen.run()[0], initial_screen.run()[1]
         print('PLAYERS:', player_names)
-        game = GAME(players_names=player_names)
+        game = GAME(players_names=player_names, background=background)
         game.run_game()
     else:
         game = GAME()

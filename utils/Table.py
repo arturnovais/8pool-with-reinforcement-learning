@@ -20,7 +20,7 @@ class Table:
         display_height (int): Altura da tela de exibição (em pixels).
     '''
     
-    def __init__(self, largura: float, altura: float, ambiente_fisico: PhysicsEnvironment, display_width, display_height, clock = None, taco = None, draw_game = True, scoreboard=None, game=None):
+    def __init__(self, largura: float, altura: float, ambiente_fisico: PhysicsEnvironment, display_width, display_height, clock = None, taco = None, draw_game = True, scoreboard=None, game=None, background=None):
         '''
         Inicializa a mesa de sinuca com suas dimensões, o ambiente físico, e define os buracos e as bolas.
         '''
@@ -51,7 +51,7 @@ class Table:
             
             self.background_image = (
                 pygame.transform.scale(
-                    pygame.image.load(cfg.background_image).convert_alpha(),
+                    pygame.image.load(cfg.background_image if background is None else background).convert_alpha(),
                     (cfg.display_width, cfg.display_height)
                 )
                 if cfg.apply_background

@@ -25,4 +25,6 @@ cue_height = 60
 
 
 initial_screen = True
-initial_screen_background = 'imgs/Background/bar1.jpg'
+initial_screen_background = 'imgs/Background/snooker.jpg'
+
+tittle_font = 'imgs/Font/apes_tittle.ttf'
