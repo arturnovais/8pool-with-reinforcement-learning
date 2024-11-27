@@ -16,7 +16,7 @@ bola_massa = 1
 raio_buraco = 40
 
 apply_background = True
-background_image = 'imgs/Background/bar1.jpg'
+background_image = 'imgs/Background/inf1.jpg'
 
 apply_cue = True
 cue_image = 'imgs/Cue/cue.png'
