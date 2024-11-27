@@ -24,10 +24,10 @@ cue_width = 200
 cue_height = 60
 
 
-initial_screen = True
+initial_screen = False
 initial_screen_background = 'imgs/Background/snooker.jpg'
 
 tittle_font = 'imgs/Font/apes_tittle.ttf'
 
-end_screen = True
+end_screen = False
 celebration_walpapper = 'imgs/Background/happy_monkey2.jpg'

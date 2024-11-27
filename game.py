@@ -12,7 +12,7 @@ from interface.end_screen import EndScreen
 class GAME:
     
     
-    def __init__(self, players_names, background):
+    def __init__(self, players_names=['Player 1', 'Player 2'], background='imgs/Background/inf1.jpg'):
         
         self.Scoreboard = Scoreboard(players_names,game=self)
         self.table = Table(cfg.display_table_width, cfg.display_table_height, 
