@@ -170,7 +170,7 @@ class Table:
 
         # Remover bolas que caíram nos buracos
         if self.bola_branca in bolas_para_remover:
-            self.bola_branca.posicao = torch.tensor(cfg.bola_branca_posicao_inicial,cfg.device)
+            self.bola_branca.posicao = torch.tensor(cfg.bola_branca_posicao_inicial,device=cfg.device, dtype=torch.float32)
             self.bola_branca.velocidade = torch.tensor([0, 0], device=self.device)
             
         for bola in bolas_para_remover:
@@ -247,7 +247,7 @@ class Table:
         
         
         pygame.display.flip()
-        #self.clock.tick(60)
+        self.clock.tick(60)
 
     
     
@@ -263,7 +263,7 @@ class Table:
         #self.taco.aplicar_tacada(self.bola_branca,angulo, intensidade)
         
         forca = self.taco.calcular_forca(intensidade, angulo)
-        self.bola_branca.aplicar_forca(forca, dt=0.1)
+        self.bola_branca.aplicar_forca(forca)
         
         while not self.exec_physics():
             if self.draw_game:

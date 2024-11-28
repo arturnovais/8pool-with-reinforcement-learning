@@ -73,7 +73,7 @@ class Cue:
             bool: True se a bola branca estiver parada, indicando que o taco pode ser usado.
         '''
         for ball in self.table.bolas:
-            if ball.velocidade != (0, 0):
+            if ball.velocidade.abs().sum() != 0 :
                 return False
         return True
 
@@ -88,6 +88,8 @@ class Cue:
             if not self.lance_travado:
                 # Posição da bola branca
                 x, y = self.table.bola_branca.posicao
+                x = x.item()
+                y = y.item()
                 # Posição do mouse
                 mx, my = pygame.mouse.get_pos()
                 

@@ -22,16 +22,16 @@ class Ball:
     def __init__(self, numero: int, raio: float, massa: float, posicao: tuple, imagem=None, velocidade: tuple = (0, 0), rotação: float = 0):
         self.numero = numero
         self.raio = raio
-        self.massa = torch.tensor(massa, device=cfg.device)
-        self.posicao = torch.tensor(posicao, device=cfg.device)
-        self.velocidade = torch.tensor(velocidade, device=cfg.device)
-        self.aceleracao = (0, 0)
+        self.massa = torch.tensor(massa, device=cfg.device, dtype=torch.float32)
+        self.posicao = torch.tensor(posicao, device=cfg.device, dtype=torch.float32)
+        self.velocidade = torch.tensor(velocidade, device=cfg.device, dtype=torch.float32)
+        self.aceleracao = torch.tensor((0,0), device=cfg.device, dtype=torch.float32)
         self.rotação = rotação
         self.spin = 0
         self.player = -1
 
         
-        self.dt = torch.tensor(cfg.delta_tempo, device=cfg.device)
+        self.dt = torch.tensor(cfg.delta_tempo, device=cfg.device, dtype=torch.float32)
         
         self.visual_raio = raio * 2  # Raio visual para o dobro do tamanho
         if imagem is not None:
@@ -40,7 +40,7 @@ class Ball:
         else:
             self.imagem = None
 
-    def aplicar_forca(self, forca: tuple, dt: float):
+    def aplicar_forca(self, forca: tuple):
         '''
         Aplica uma força à bola, ajustando sua aceleração e velocidade de acordo com a segunda lei de Newton.
         
@@ -48,17 +48,11 @@ class Ball:
             forca (tuple): Força aplicada à bola nas direções (fx, fy), em Newtons.
             dt (float): Intervalo de tempo em segundos durante o qual a força é aplicada.
         '''
-        ax = forca[0] / self.massa
-        ay = forca[1] / self.massa
-        self.aceleracao = (ax, ay)
         
-        self.velocidade = (
-            self.velocidade[0] + self.aceleracao[0] * dt,
-            self.velocidade[1] + self.aceleracao[1] * dt
-        )
-    
-    
-    
+        forca = torch.tensor(forca, device=cfg.device, dtype=torch.float32)
+        self.aceleracao = forca / self.massa
+        self.velocidade = self.velocidade + self.aceleracao * self.dt
+        
     
     #def atualizar_estado_bola(self, bola: Ball, dt: float):
     #    '''
@@ -86,7 +80,7 @@ class Ball:
         self.velocidade = ambiente_fisico.aplicar_resistencia_ar(self.velocidade)
 
         if self.velocidade.abs().sum() < 0.01:
-            self.velocidade = torch.tensor([0, 0], device=cfg.device)
+            self.velocidade = torch.tensor([0, 0], device=cfg.device, dtype=torch.float32)
 
         self.posicao = self.posicao + self.velocidade * self.dt
         

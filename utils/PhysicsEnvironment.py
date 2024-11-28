@@ -18,10 +18,10 @@ class PhysicsEnvironment:
         '''
         Inicializa o ambiente físico com atrito dinâmico, atrito estático e resistência do ar.
         '''
-        self.friccao_dinamica = torch.tensor(cfg.friccao_dinamica, device=cfg.device)
-        self.friccao_estatica = torch.tensor(cfg.friccao_estatica, device=cfg.device)
-        self.resistencia_ar =   torch.tensor(cfg.resistencia_ar, device=cfg.device)
-        self.limiar_atrito = torch.tensor(cfg.limiar_atrito, device=cfg.device)# Define o limiar entre o atrito dinâmico e estático
+        self.friccao_dinamica = torch.tensor(cfg.friccao_dinamica, device=cfg.device, dtype=torch.float32)
+        self.friccao_estatica = torch.tensor(cfg.friccao_estatica, device=cfg.device, dtype=torch.float32)
+        self.resistencia_ar =   torch.tensor(cfg.resistencia_ar, device=cfg.device, dtype=torch.float32)
+        self.limiar_atrito = torch.tensor(cfg.limiar_atrito, device=cfg.device, dtype=torch.float32)# Define o limiar entre o atrito dinâmico e estático
 
     def aplicar_atrito(self, velocidade: torch.tensor) -> torch.tensor:
         '''
@@ -34,7 +34,7 @@ class PhysicsEnvironment:
         Returns:
             tuple: A nova velocidade após aplicar o atrito.
         '''
-        magnitude_velocidade = torch.sqrt(velocidade[0]**2 + velocidade[1]**2, device=cfg.device)
+        magnitude_velocidade = velocidade.pow(2).sum().sqrt()
           
 
         if magnitude_velocidade > self.limiar_atrito:
@@ -42,8 +42,9 @@ class PhysicsEnvironment:
         else:
             friccao_real = self.friccao_estatica
 
-        friccao_real = torch.max(friccao_real, 0)
-
+        friccao_real = friccao_real.clamp(0, 1)
+        
+        print(friccao_real)
         return velocidade * friccao_real
             
 
@@ -59,16 +60,3 @@ class PhysicsEnvironment:
         '''
         return velocidade * self.resistencia_ar
 
-    def aplicar_forcas(self, velocidade: tuple) -> tuple:
-        '''
-        Aplica todas as forças físicas (atrito e resistência do ar) à bola.
-        
-        Args:
-            velocidade (tuple): A velocidade atual da bola (vx, vy).
-        
-        Returns:
-            tuple: A nova velocidade da bola após aplicar todas as forças.
-        '''
-        velocidade = self.aplicar_atrito(velocidade)
-        velocidade = self.aplicar_resistencia_ar(velocidade)
-        return velocidade
