@@ -7,7 +7,7 @@ from utils.Scoreboard import Scoreboard
 
 from interface.initial_screen import InitialScreen
 from interface.end_screen import EndScreen 
-
+import torch
 
 class GAME:
     
@@ -39,11 +39,10 @@ class GAME:
         self.inicou_jogada_intensidade = 0
         self.numero_bolas = [[],[]] # numero das bolas que cada jogador deve derrubar     
         
+        return self.get_observations()
         
     def rules(self, information, idx_player):
         # Função que verifica as regras do jogo
-        
-        table = self if type(self) == Table else self.table
         
         bolas_caidas_sem_branca = [b for b in information['bolas_caidas'] if b.numero != 0]
         fez_bola_branca = 0 in [b.numero for b in information['bolas_caidas']]
@@ -217,7 +216,49 @@ class GAME:
                 return  # Volta ao menu principal
 
 
-            
+    def get_observations(self):
+        #
+        
+        
+        bolas_jogador = [b for b in self.numero_bolas[self.jpgador_atual]]
+        bolas_jogador_mesa = [b.numero for b in self.table.bolas if b.numero in bolas_jogador]
+        
+        # {len(bolas_jogador_mesa)}/{len(bolas_jogador)}
+                
+        
+        bolas_jogador_atual = self.numero_bolas[self.jogador_atual]
+        bolas_mesa = len([bola for bola in self.table.bolas if bola.numero != 0])
+        
+        # cria um vetor de 16 posicao
+        state = torch.zeros(16,4, device=cfg.device)
+        
+        bola_branca_position = None
+        
+        index = 0
+        for bola in self.table.bolas:
+            if bola.numero == 0:
+                bola_branca_position = torch.tensor([bola.posicao[0], bola.posicao[1]], device=cfg.device)
+            elif bola.numero == 1:
+                bola_do_jogador=False
+                if (len(bolas_jogador) != 0) and (len(bolas_jogador_mesa) == 0 ): # quando o jogador ja tiver as bolas associadas e quando fizer todas
+                    bola_do_jogador = True 
+                    
+                state[index] = torch.tensor([bola.posicao[0], 
+                                             bola.posicao[1], 
+                                             1, # bola existe
+                                             bola_do_jogador],
+                                             device=cfg.device)
+            else:
+                bola_jogador = bola.numero in bolas_jogador_atual
+                state[index] = torch.tensor([bola.posicao[0], 
+                                             bola.posicao[1], 
+                                             1, # bola existe
+                                             bola_jogador
+                                            ])
+                                             
+        return state, bola_branca_position
+        
+        
 
 
 
