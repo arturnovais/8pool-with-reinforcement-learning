@@ -258,7 +258,10 @@ class GAME:
                                              
         return state, bola_branca_position
         
-        
+    def single_observation_space():
+        return 16*4 + 2
+    # cada bola, possui x,y, se existe, se é do jogador
+    
 
 
 
