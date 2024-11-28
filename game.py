@@ -23,19 +23,21 @@ class GAME:
                   scoreboard=self.Scoreboard,
                   background=background,
                   game = self)
-        self.table.reset()
 
         # comando para controlar o jogo.... o TACO INTERFERE NESSAS VARIAVEIS
         self.iniciou_jogada = False
         self.jogador_atual = 0
         self.iniciou_jogada_angulo = 0
         self.inicou_jogada_intensidade = 0
-        
-        
         self.numero_bolas = [[],[]] # numero das bolas que cada jogador deve derrubar
         
     def reset(self):
-        self.__init__()
+        self.table.reset()
+        self.iniciou_jogada = False
+        self.jogador_atual = 0
+        self.iniciou_jogada_angulo = 0
+        self.inicou_jogada_intensidade = 0
+        self.numero_bolas = [[],[]] # numero das bolas que cada jogador deve derrubar     
         
         
     def rules(self, information, idx_player):
@@ -178,7 +180,8 @@ class GAME:
                     print("Nao tem mais bolas do adversario na mesa")
                     print("perdeu")
                     information['perdeu'] = True
-
+                    break
+                
                 information['joga_novamente'] = False
 
             # Verifica se o jogador derrubou todas as bolas e nao tem a bola 1
