@@ -208,9 +208,8 @@ class GAME:
             while not self.iniciou_jogada:
                 self.table.draw()
 
-            information = self.table.step(angulo=self.iniciou_jogada_angulo,
-                                        intensidade=self.inicou_jogada_intensidade)
-            information = self.make_step(information)
+            information = self.step((self.iniciou_jogada_angulo, self.inicou_jogada_intensidade))[1]
+            
             self.iniciou_jogada = False
                 
             if information.get('winner',None) is not None:
@@ -280,6 +279,7 @@ class GAME:
     def step(self, actions):
         angulo, forca = actions
         informations  = self.table.step(angulo, forca)
+        informations = self.make_step(informations)
         
         return self.get_observations(), informations
         
