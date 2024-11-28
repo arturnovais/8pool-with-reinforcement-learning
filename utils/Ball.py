@@ -2,6 +2,7 @@ import pygame
 from utils.PhysicsEnvironment import PhysicsEnvironment
 import utils.config as  cfg
 import random
+import torch
 
 class Ball:
     '''
@@ -22,13 +23,16 @@ class Ball:
         self.numero = numero
         self.raio = raio
         self.massa = massa
-        self.posicao = posicao
-        self.velocidade = velocidade
+        self.posicao = torch.tensor(posicao, device=cfg.device)
+        self.velocidade = torch.tensor(velocidade, device=cfg.device)
         self.aceleracao = (0, 0)
         self.rotação = rotação
         self.spin = 0
         self.player = -1
 
+        
+        self.dt = torch.tensor(cfg.delta_tempo, device=cfg.device)
+        
         self.visual_raio = raio * 2  # Raio visual para o dobro do tamanho
         if imagem is not None:
             # Redimensiona a imagem para o dobro do tamanho da bola (baseado no raio visual)
@@ -53,7 +57,24 @@ class Ball:
             self.velocidade[1] + self.aceleracao[1] * dt
         )
     
-    def atualizar_posicao(self, dt: float, ambiente_fisico: PhysicsEnvironment):
+    
+    
+    
+    #def atualizar_estado_bola(self, bola: Ball, dt: float):
+    #    '''
+    #    Atualiza a posição da bola considerando as forças de atrito e resistência do ar.
+    #    
+    #    Args:
+    #        bola (Ball): A bola cujo estado será atualizado.
+    #        dt (float): Intervalo de tempo (em segundos) para atualização.
+    #    '''
+    #    bola.velocidade = self.ambiente_fisico.aplicar_atrito(bola.velocidade)
+    #    bola.velocidade = self.ambiente_fisico.aplicar_resistencia_ar(bola.velocidade)
+#
+    #    bola.posicao = bola.posicao + bola.velocidade * dt
+    #    
+        
+    def atualizar_posicao(self, ambiente_fisico: PhysicsEnvironment):
         '''
         Atualiza a posição da bola levando em consideração a velocidade atual, o atrito e a resistência do ar.
         
@@ -64,15 +85,12 @@ class Ball:
         self.velocidade = ambiente_fisico.aplicar_atrito(self.velocidade)
         self.velocidade = ambiente_fisico.aplicar_resistencia_ar(self.velocidade)
 
-        if self.velocidade[0] ** 2 + self.velocidade[1] ** 2 < 0.01:
-            self.velocidade = (0, 0)
+        if self.velocidade.pow(2).sum() < 0.01:
+            self.velocidade = torch.tensor([0, 0], device=cfg.device)
 
-        self.posicao = (
-            self.posicao[0] + self.velocidade[0] * dt,
-            self.posicao[1] + self.velocidade[1] * dt
-        )
-
-        self.aplicar_spin(dt)
+        self.posicao = self.posicao + self.velocidade * self.dt
+        
+        #self.aplicar_spin()
 
     def aplicar_spin(self, dt: float):
         '''
@@ -147,8 +165,7 @@ def criar_bolas(table):
             imagem_bola = carregar_imagem_bola(imagem_bola)
             
             # Cria a bola com a imagem redimensionada para o novo raio
-            bola = Ball(numero=contador_bola, raio=raio_bola, massa=massa_bola, posicao=position, imagem=imagem_bola)
-            bola.velocidade = (0, 0)
+            bola = Ball(numero=contador_bola, raio=raio_bola, massa=massa_bola, posicao=position, imagem=imagem_bola, velocidade=(0, 0))
             table.bolas.append(bola)
 
 def iniciar_bola_branca(table):
@@ -164,7 +181,8 @@ def iniciar_bola_branca(table):
     bola_branca = Ball(numero=0, raio=cfg.bola_branca_raio, 
                                  massa=cfg.bola_branca_massa, 
                                  posicao=cfg.bola_branca_posicao_inicial, 
-                                 imagem=imagem_bola_branca)
-    bola_branca.velocidade = (0, 0)
+                                 imagem=imagem_bola_branca,
+                                 velocidade=(0, 0)
+                                 )
     table.bolas.append(bola_branca)
     table.bola_branca = bola_branca

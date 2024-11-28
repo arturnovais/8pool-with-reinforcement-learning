@@ -31,3 +31,14 @@ tittle_font = 'imgs/Font/apes_tittle.ttf'
 
 end_screen = True
 celebration_walpapper = 'imgs/Background/happy_monkey2.jpg'
+
+
+
+device = 'cpu'
+# fisica
+limiar_atrito=0.5
+friccao_dinamica = 0.99 
+friccao_estatica = 0.95 
+resistencia_ar = 0.999
+
+delta_tempo = 1

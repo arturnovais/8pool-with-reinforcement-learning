@@ -129,21 +129,6 @@ class Table:
           
 
 
-    def atualizar_estado_bola(self, bola: Ball, dt: float):
-        '''
-        Atualiza a posição da bola considerando as forças de atrito e resistência do ar.
-        
-        Args:
-            bola (Ball): A bola cujo estado será atualizado.
-            dt (float): Intervalo de tempo (em segundos) para atualização.
-        '''
-        bola.velocidade = self.ambiente_fisico.aplicar_atrito(bola.velocidade)
-        bola.velocidade = self.ambiente_fisico.aplicar_resistencia_ar(bola.velocidade)
-
-        bola.posicao = (
-            bola.posicao[0] + bola.velocidade[0] * dt,
-            bola.posicao[1] + bola.velocidade[1] * dt
-        )
 
     def detectar_buraco(self, bola: Ball) -> bool:
         '''
@@ -166,7 +151,7 @@ class Table:
         bolas_para_remover = []
 
         for bola in self.bolas:
-            bola.atualizar_posicao(1, self.ambiente_fisico)
+            bola.atualizar_posicao(self.ambiente_fisico)
             if self.detectar_buraco(bola):
                 bolas_para_remover.append(bola)
                 self.informations['bolas_caidas'].append(bola)

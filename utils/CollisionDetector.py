@@ -1,5 +1,6 @@
 import math
 from utils.Ball import Ball
+import torch
 
 class CollisionDetector:
     '''
@@ -27,9 +28,8 @@ class CollisionDetector:
         Returns:
             bool: True se as bolas colidirem, False caso contrário.
         '''
-        dist_x = bola1.posicao[0] - bola2.posicao[0]
-        dist_y = bola1.posicao[1] - bola2.posicao[1]
-        distancia = math.sqrt(dist_x**2 + dist_y**2)
+        dist_entre_bolas = bola1.posicao - bola2.posicao
+        distancia = torch.sqrt(dist_entre_bolas.pow(2).sum())
         return distancia <= (bola1.raio + bola2.raio)
 
     def resolver_colisao_bolas(self, bola1: Ball, bola2: Ball):
@@ -42,19 +42,21 @@ class CollisionDetector:
             bola1 (Ball): Primeira bola envolvida na colisão.
             bola2 (Ball): Segunda bola envolvida na colisão.
         '''
-        dist_x = bola1.posicao[0] - bola2.posicao[0]
-        dist_y = bola1.posicao[1] - bola2.posicao[1]
-        distancia = math.sqrt(dist_x**2 + dist_y**2)
-
+        dist_entre_bolas = bola1.posicao - bola2.posicao
+        distancia = torch.sqrt(dist_entre_bolas.pow(2).sum())
+        
         if distancia == 0:
             distancia = 0.01
 
-        normal_x = dist_x / distancia
-        normal_y = dist_y / distancia
 
-        tangente_x = -normal_y
-        tangente_y = normal_x
-
+        # TODO: continuar
+        normal = dist_entre_bolas / distancia
+        normal_x, normal_y = normal
+        
+        tangente = torch.tensor([-normal[1],  normal[0]], device='cpu')
+        tangente_x, tangente_y = tangente
+        
+        
         v1_normal = bola1.velocidade[0] * normal_x + bola1.velocidade[1] * normal_y
         v2_normal = bola2.velocidade[0] * normal_x + bola2.velocidade[1] * normal_y
 
