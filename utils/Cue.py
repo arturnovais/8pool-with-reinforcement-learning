@@ -12,14 +12,13 @@ class Cue:
         força_maxima (float): Define a força máxima que o taco pode aplicar (em Newtons). Valor padrão: 200.0.
     '''
     
-    def __init__(self, table, força_maxima: float = 200.0):
+    def __init__(self, table):
         '''
         Inicializa o taco com a mesa associada e configura a força máxima da tacada, além da
         intensidade inicial da tacada e o controle de travamento de direção.
         '''
         self.table = table
         self.table.taco = self
-        self.força_maxima = força_maxima
         self.intensidade = 0
         self.intensidade_incremento = 0.01
         self.lance_travado = False
@@ -37,8 +36,8 @@ class Cue:
         Returns:
             tuple: Um par de valores (fx, fy) representando a força aplicada nas direções x e y.
         '''
-        intensidade = min(max(intensidade, 0), 1)
-        forca_total = intensidade * self.força_maxima
+        #intensidade = min(max(intensidade, 0), 1) # TODO: Remover
+        forca_total = intensidade * cfg.forca_maxima
         fx = forca_total * math.cos(angulo)
         fy = forca_total * math.sin(angulo)
         return fx, fy
@@ -56,7 +55,7 @@ class Cue:
         
 
                 
-        #forca = self.calcular_forca(intensidade, angulo)
+        #forca = 
         #bola.aplicar_forca(forca, dt=0.1)
 
         if self.table.game is not None:
@@ -213,9 +212,11 @@ class Cue:
             self.lance_travado = True
             
         elif self.lance_travado:
-            self.aplicar_tacada(self.table.bola_branca, self.intensidade, self.angulo_travado)
+            #self.aplicar_tacada(self.table.bola_branca, self.intensidade, self.angulo_travado)
+            self.table.game.iniciou_jogada = True
+            self.table.game.iniciou_jogada_angulo = self.angulo_travado
+            self.table.game.inicou_jogada_intensidade = self.intensidade
             
-            self.intensidade = 0
             self.lance_travado = False
 
 

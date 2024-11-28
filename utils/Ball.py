@@ -25,7 +25,7 @@ class Ball:
         self.massa = torch.tensor(massa, device=cfg.device, dtype=torch.float32)
         self.posicao = torch.tensor(posicao, device=cfg.device, dtype=torch.float32)
         self.velocidade = torch.tensor(velocidade, device=cfg.device, dtype=torch.float32)
-        self.aceleracao = torch.tensor((0,0), device=cfg.device, dtype=torch.float32)
+#        self.aceleracao = torch.tensor((0,0), device=cfg.device, dtype=torch.float32)
         self.rotação = rotação
         self.spin = 0
         self.player = -1
@@ -49,9 +49,8 @@ class Ball:
             dt (float): Intervalo de tempo em segundos durante o qual a força é aplicada.
         '''
         
-        forca = torch.tensor(forca, device=cfg.device, dtype=torch.float32)
-        self.aceleracao = forca / self.massa
-        self.velocidade = self.velocidade + self.aceleracao * self.dt
+        forca = torch.tensor(forca, device=cfg.device, dtype=torch.float32) / self.massa
+        self.velocidade = self.velocidade + forca * self.dt
         
     
     #def atualizar_estado_bola(self, bola: Ball, dt: float):

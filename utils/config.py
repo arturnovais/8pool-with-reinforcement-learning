@@ -8,10 +8,10 @@ bola_branca_posicao_inicial = ( (display_width / 2 - display_table_width / 2) + 
                                 (display_height / 2 - display_table_height / 2) + display_table_height / 2)
 
 bola_branca_raio = 10
-bola_branca_massa = 1.05
+bola_branca_massa = 1.7
 
 bola_raio  = 10
-bola_massa = 1
+bola_massa = 1.5
 
 raio_buraco = 40
 
@@ -37,8 +37,15 @@ celebration_walpapper = 'imgs/Background/happy_monkey2.jpg'
 device = 'cpu'
 # fisica
 limiar_atrito=0.5
-friccao_dinamica = 0.99 
+
+friccao_dinamica = 0.989 
 friccao_estatica = 0.95 
-resistencia_ar = 0.999
+resistencia_ar = 0.9999
 elasticidade = 0.95
 delta_tempo = 1
+
+
+
+# cue
+# max
+forca_maxima =  40 
