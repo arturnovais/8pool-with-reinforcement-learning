@@ -77,12 +77,13 @@ class GAME:
                 self.numero_bolas = [bolas_adversario, bolas_jogador]
 
             # Associa as imagens das bolas aos jogadores no placar
-            self.Scoreboard.bolas_imagens[0] = first_ball.imagem  # Jogador atual
+            self.Scoreboard.bolas_imagens[1] = first_ball.imagem  # Jogador atual
             adversario_primeira_bola = next(
                 (b for b in self.table.bolas if b.numero in bolas_adversario), None
             )
             if adversario_primeira_bola:
-                self.Scoreboard.bolas_imagens[1] = adversario_primeira_bola.imagem  # Adversário
+                self.Scoreboard.bolas_imagens[0] = adversario_primeira_bola.imagem  # Adversário
+                
 
             # Verifica vitória ou derrota na primeira jogada
             if 1 in [b.numero for b in bolas_caidas_sem_branca]:
