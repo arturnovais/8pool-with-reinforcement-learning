@@ -22,7 +22,7 @@ class Ball:
     def __init__(self, numero: int, raio: float, massa: float, posicao: tuple, imagem=None, velocidade: tuple = (0, 0), rotação: float = 0):
         self.numero = numero
         self.raio = raio
-        self.massa = massa
+        self.massa = torch.tensor(massa, device=cfg.device)
         self.posicao = torch.tensor(posicao, device=cfg.device)
         self.velocidade = torch.tensor(velocidade, device=cfg.device)
         self.aceleracao = (0, 0)
@@ -85,7 +85,7 @@ class Ball:
         self.velocidade = ambiente_fisico.aplicar_atrito(self.velocidade)
         self.velocidade = ambiente_fisico.aplicar_resistencia_ar(self.velocidade)
 
-        if self.velocidade.pow(2).sum() < 0.01:
+        if self.velocidade.abs().sum() < 0.01:
             self.velocidade = torch.tensor([0, 0], device=cfg.device)
 
         self.posicao = self.posicao + self.velocidade * self.dt

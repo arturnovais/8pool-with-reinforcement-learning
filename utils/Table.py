@@ -7,6 +7,7 @@ import sys
 from utils.Cue import Cue
 import utils.config as cfg
 from utils.Ball import Ball, criar_bolas, iniciar_bola_branca
+import torch
 
 class Table:
     '''
@@ -169,8 +170,9 @@ class Table:
 
         # Remover bolas que caíram nos buracos
         if self.bola_branca in bolas_para_remover:
-            self.bola_branca.posicao = cfg.bola_branca_posicao_inicial
-            self.bola_branca.velocidade = (0, 0) 
+            self.bola_branca.posicao = torch.tensor(cfg.bola_branca_posicao_inicial,cfg.device)
+            self.bola_branca.velocidade = torch.tensor([0, 0], device=self.device)
+            
         for bola in bolas_para_remover:
             if bola != self.bola_branca:
                 self.bolas.remove(bola)
@@ -178,7 +180,7 @@ class Table:
         
         terminou_jogada = True
         for bola in self.bolas:
-            if bola.velocidade != (0, 0):
+            if bola.velocidade.abs().sum() != 0:
                 return False
             
         return True
@@ -236,10 +238,10 @@ class Table:
             if bola.imagem:
                 # Desenha a bola com a imagem ajustada, centralizando com base no novo tamanho visual
                 visual_raio = bola.raio * 2  # Usando o dobro do raio para o tamanho visual
-                self.screen.blit(bola.imagem, (bola.posicao[0] - visual_raio, bola.posicao[1] - visual_raio))
+                self.screen.blit(bola.imagem, (bola.posicao[0].item() - visual_raio, bola.posicao[1].item() - visual_raio))
             else:
                 # Se não houver imagem, desenha a bola como um círculo de cor
-                pygame.draw.circle(self.screen, bola.cor, (int(bola.posicao[0]), int(bola.posicao[1])), int(bola.raio))
+                pygame.draw.circle(self.screen, bola.cor, (int(bola.posicao[0].item()), int(bola.posicao[1].item())), int(bola.raio))
 
         self.taco.draw(self.screen)
         

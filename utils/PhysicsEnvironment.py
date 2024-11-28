@@ -1,5 +1,5 @@
 import torch
-import config as cfg
+import utils.config as cfg
 
 class PhysicsEnvironment:
     '''
@@ -21,7 +21,7 @@ class PhysicsEnvironment:
         self.friccao_dinamica = torch.tensor(cfg.friccao_dinamica, device=cfg.device)
         self.friccao_estatica = torch.tensor(cfg.friccao_estatica, device=cfg.device)
         self.resistencia_ar =   torch.tensor(cfg.resistencia_ar, device=cfg.device)
-        self.limiar_atrito = torch.tensor(cfg.limiar_atrito, cfg.device)# Define o limiar entre o atrito dinâmico e estático
+        self.limiar_atrito = torch.tensor(cfg.limiar_atrito, device=cfg.device)# Define o limiar entre o atrito dinâmico e estático
 
     def aplicar_atrito(self, velocidade: torch.tensor) -> torch.tensor:
         '''

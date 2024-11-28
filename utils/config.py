@@ -40,5 +40,5 @@ limiar_atrito=0.5
 friccao_dinamica = 0.99 
 friccao_estatica = 0.95 
 resistencia_ar = 0.999
-
+elasticidade = 0.95
 delta_tempo = 1
