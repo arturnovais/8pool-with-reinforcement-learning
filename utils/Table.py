@@ -20,7 +20,7 @@ class Table:
         display_height (int): Altura da tela de exibição (em pixels).
     '''
     
-    def __init__(self, largura: float, altura: float, ambiente_fisico: PhysicsEnvironment, display_width, display_height, clock = None, taco = None, draw_game = True, scoreboard=None, game=None):
+    def __init__(self, largura: float, altura: float, ambiente_fisico: PhysicsEnvironment, display_width, display_height, clock = None, taco = None, draw_game = True, scoreboard=None, game=None, device = 'cpu'):
         '''
         Inicializa a mesa de sinuca com suas dimensões, o ambiente físico, e define os buracos e as bolas.
         '''
@@ -53,6 +53,7 @@ class Table:
         self.informations = {'colisoes' : [], 'bolas_caidas' : [] }
         self.scoreboard = scoreboard
         self.game = game
+        self.device = device
         
     def definir_buracos(self) -> list:
         '''
