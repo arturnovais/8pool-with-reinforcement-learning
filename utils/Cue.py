@@ -1,5 +1,6 @@
 import math
 import pygame
+import utils.config as cfg
 
 class Cue:
     '''
@@ -23,6 +24,7 @@ class Cue:
         self.intensidade_incremento = 0.01
         self.lance_travado = False
         self.angulo_travado = None
+        #self.image = pygame.image.load(cfg.cue_image).convert_alpha()
 
     def calcular_forca(self, intensidade: float, angulo: float) -> tuple:
         '''
@@ -77,24 +79,96 @@ class Cue:
 
     def draw(self, screen: pygame.Surface):
         '''
-        Desenha o taco e a barra lateral de intensidade na tela do jogo.
-        Se a direção da tacada não estiver travada, o taco segue a posição do mouse.
+        Desenha o taco e as linhas pontilhadas na direção da bola até o fim da mesa.
 
         Args:
             screen (pygame.Surface): A superfície de jogo onde os elementos serão desenhados.
         '''
         if self.is_enable():
             if not self.lance_travado:
+                # Posição da bola branca
                 x, y = self.table.bola_branca.posicao
+                # Posição do mouse
                 mx, my = pygame.mouse.get_pos()
                 
-                nx = 2*x - mx
-                ny = 2*y - my
-                
-                #pygame.draw.line(screen, (88, 51, 0), (x, y), (nx, ny), 6)
-                pygame.draw.line(screen, (88, 51, 0), (x, y), (mx, my), 6)
+                # Vetor da tacada (bola para o mouse)
+                dx = -(mx - x)
+                dy = -(my - y)
+                length = (dx**2 + dy**2)**0.5  # Comprimento do vetor
+                if length != 0:  # Evitar divisão por zero
+                    dx /= length
+                    dy /= length
 
+                # Calculando a linha pontilhada até o fim da mesa
+                dash_length = 10  # Tamanho de cada traço
+                gap_length = 5    # Espaço entre os traços
+                start_x, start_y = x, y
+
+                # Encontrar os limites da mesa
+                table_left = (1400 - 800) // 2
+                table_right = table_left + 800
+                table_top = (800 - 400) // 2
+                table_bottom = table_top + 400
+
+                while table_left <= start_x <= table_right and table_top <= start_y <= table_bottom:
+                    # Calcula o fim do traço
+                    end_x = start_x + dx * dash_length
+                    end_y = start_y + dy * dash_length
+                    
+                    # Desenha o traço se ele está dentro dos limites
+                    if table_left <= end_x <= table_right and table_top <= end_y <= table_bottom:
+                        pygame.draw.line(screen, (0, 0, 0), (start_x, start_y), (end_x, end_y), 2)
+
+                    # Avança para o próximo traço
+                    start_x = end_x + dx * gap_length
+                    start_y = end_y + dy * gap_length
+
+                # Taco com imagem ou linha
+                if cfg.apply_cue:
+                    # Comprimento do taco com base na largura da imagem
+                    taco_offset = cfg.cue_width // 2  # Metade da largura como ajuste
+                    taco_start_x = x - dx * (taco_offset + 10)  # Subtração para mover o taco para trás da bola
+                    taco_start_y = y - dy * (taco_offset + 10)
+
+                    # Calcular o ângulo de rotação em graus
+                    angle = math.degrees(math.atan2(dy, dx))
+
+                    # Carregar a imagem do taco e redimensioná-la
+                    cue_image = pygame.image.load(cfg.cue_image).convert_alpha()
+                    cue_image = pygame.transform.scale(cue_image, (cfg.cue_width, cfg.cue_height))
+                    
+                    # Rotacionar a imagem inicialmente (pequena inclinação extra)
+                    initial_rotation = -14  # Ajuste inicial da rotação em graus
+                    cue_image = pygame.transform.rotate(cue_image, initial_rotation)
+
+                    # Rotacionar a imagem para alinhar ao vetor do taco
+                    rotated_cue_image = pygame.transform.rotate(cue_image, -angle)
+
+                    # Obter o retângulo da imagem rotacionada e centralizá-lo na posição inicial
+                    cue_rect = rotated_cue_image.get_rect(center=(taco_start_x, taco_start_y))
+
+                    # Desenhar a imagem do taco
+                    screen.blit(rotated_cue_image, cue_rect.topleft)
+                else:
+                    # Caso a imagem não esteja ativada ou cfg.apply_cue seja None, desenhar o taco como uma linha
+                    taco_length = 100  # Comprimento do taco
+                    offset = 20         # Distância entre a bola e o início do taco
+                    taco_start_x = x - dx * offset
+                    taco_start_y = y - dy * offset
+                    taco_end_x = x - dx * (offset + taco_length)
+                    taco_end_y = y - dy * (offset + taco_length)
+
+                    pygame.draw.line(screen, (88, 51, 0), (taco_start_x, taco_start_y), (taco_end_x, taco_end_y), 6)
+
+            # Desenhar a barra de intensidade
             self.draw_intensidade_bar(screen)
+
+
+
+
+
+
+
 
     def draw_intensidade_bar(self, screen: pygame.Surface):
         '''
@@ -104,8 +178,8 @@ class Cue:
         Args:
             screen (pygame.Surface): A superfície de jogo onde a barra será desenhada.
         '''
-        bar_x = 1100
-        bar_y = 100
+        bar_x = cfg.display_width - (0.2 * cfg.display_table_width // 2)
+        bar_y = cfg.display_height // 2 - 200
         bar_width = 30
         bar_height = 400
 

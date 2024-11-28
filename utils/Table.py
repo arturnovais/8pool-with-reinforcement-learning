@@ -20,7 +20,7 @@ class Table:
         display_height (int): Altura da tela de exibição (em pixels).
     '''
     
-    def __init__(self, largura: float, altura: float, ambiente_fisico: PhysicsEnvironment, display_width, display_height, clock = None, taco = None, draw_game = True, scoreboard=None, game=None, device = 'cpu'):
+    def __init__(self, largura: float, altura: float, ambiente_fisico: PhysicsEnvironment, display_width, display_height, clock = None, taco = None, draw_game = True, scoreboard=None, game=None, background=None, device = 'cpu'):
         '''
         Inicializa a mesa de sinuca com suas dimensões, o ambiente físico, e define os buracos e as bolas.
         '''
@@ -48,6 +48,15 @@ class Table:
             pygame.init()
             self.screen = pygame.display.set_mode((display_width, display_height))
             pygame.display.set_caption("Sinuca")
+            
+            self.background_image = (
+                pygame.transform.scale(
+                    pygame.image.load(cfg.background_image if background is None else background).convert_alpha(),
+                    (cfg.display_width, cfg.display_height)
+                )
+                if cfg.apply_background
+                else None
+            )
             
         self.reset()
         self.informations = {'colisoes' : [], 'bolas_caidas' : [] }
@@ -204,8 +213,11 @@ class Table:
         Args:
             screen (pygame.Surface): Superfície onde a mesa será desenhada.
         '''
-        # Desenha as bordas de madeira da mesa
-        self.screen.fill((0, 0, 0))
+        # Desenha fundo
+        
+        self.screen.fill((10, 220, 245))
+        if cfg.apply_background:
+            self.screen.blit(self.background_image, (0,0))
         
         if self.scoreboard is not None:
             self.scoreboard.draw(self.screen)

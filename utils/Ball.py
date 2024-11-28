@@ -97,7 +97,7 @@ def carregar_imagem_bola(numero):
         Returns:
             pygame.Surface: A imagem da bola carregada.
         '''
-        caminho_imagem = f"imgs/ball{numero}.png"  # Assumindo que as imagens estão em "imagens/ballX.png"
+        caminho_imagem = f"imgs/Balls/ball{numero}.png"  # Assumindo que as imagens estão em "imagens/ballX.png"
         return pygame.image.load(caminho_imagem).convert_alpha()  # Carrega a imagem com suporte a transparência
 
 
