@@ -98,6 +98,18 @@ class Ball:
             self.velocidade[1] - spin_efeito * dt
         )
 
+    
+    
+    def get_position(self):
+        x_start = cfg.display_width / 2 - cfg.display_table_width / 2
+        y_start = cfg.display_height / 2 - cfg.display_table_height / 2
+        
+        x = (self.posicao[0].item() - x_start) / cfg.display_table_width
+        y = (self.posicao[1].item() - y_start) / cfg.display_table_height
+        
+
+        return x, y
+        
 def carregar_imagem_bola(numero):
         '''
         Carrega a imagem correspondente à bola com o número fornecido.
