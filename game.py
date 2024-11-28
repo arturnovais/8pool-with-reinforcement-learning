@@ -12,14 +12,14 @@ import torch
 class GAME:
     
     
-    def __init__(self, players_names=['Player 1', 'Player 2'], background='imgs/Background/inf1.jpg'):
+    def __init__(self, players_names=['Player 1', 'Player 2'], background='imgs/Background/inf1.jpg', draw=True):
         
         self.Scoreboard = Scoreboard(players_names,game=self)
         self.table = Table(cfg.display_table_width, cfg.display_table_height, 
                   ambiente_fisico= PhysicsEnvironment(),
                   display_width = cfg.display_width, 
                   display_height = cfg.display_height,
-                  draw_game=True,
+                  draw_game=draw,
                   scoreboard=self.Scoreboard,
                   background=background,
                   game = self)
@@ -78,12 +78,12 @@ class GAME:
                 self.numero_bolas = [bolas_adversario, bolas_jogador]
 
             # Associa as imagens das bolas aos jogadores no placar
-            self.Scoreboard.bolas_imagens[0] = first_ball.imagem  # Jogador atual
+            self.Scoreboard.bolas_imagens[1] = first_ball.imagem  # Jogador atual
             adversario_primeira_bola = next(
                 (b for b in self.table.bolas if b.numero in bolas_adversario), None
             )
             if adversario_primeira_bola:
-                self.Scoreboard.bolas_imagens[1] = adversario_primeira_bola.imagem  # Adversário
+                self.Scoreboard.bolas_imagens[0] = adversario_primeira_bola.imagem  # Adversário
 
             # Verifica vitória ou derrota na primeira jogada
             if 1 in [b.numero for b in bolas_caidas_sem_branca]:
@@ -147,28 +147,24 @@ class GAME:
           
      # Importar a nova tela
 
-    def run_game(self):
-        while True:
-            print("Iniciando jogada", self.jogador_atual)
-
-            while not self.iniciou_jogada:
-                self.table.draw()
-
-            information = self.table.step(angulo=self.iniciou_jogada_angulo,
-                                        intensidade=self.inicou_jogada_intensidade)
+    
+    
+    def make_step(self, information):
             information['final'] = False
             information = self.rules(information, self.jogador_atual)
-
-            print(information)
-
+            information['winner'] = None
+            
+            
             #################################################################
             ########### Executa as regras do jogo ############################
             if information['perdeu']:
-                winner = self.Scoreboard.jogadores[1 - self.jogador_atual]
-                break
+                information['winner'] = self.Scoreboard.jogadores[1 - self.jogador_atual]
+                return information
+            
             elif information['ganhou']:
-                winner = self.Scoreboard.jogadores[self.jogador_atual]
-                break
+                information['winner'] = self.Scoreboard.jogadores[self.jogador_atual]
+                return information
+            
             elif information['penalizado']:
                 # Derruba uma bola do adversário
                 bolas_mesa_adversario = [b for b in self.table.bolas if b.numero in self.numero_bolas[1 - self.jogador_atual]]
@@ -179,7 +175,8 @@ class GAME:
                     print("Nao tem mais bolas do adversario na mesa")
                     print("perdeu")
                     information['perdeu'] = True
-                    break
+                    information['winner'] = self.Scoreboard.jogadores[1 - self.jogador_atual]
+                    return information
                 
                 information['joga_novamente'] = False
 
@@ -190,27 +187,43 @@ class GAME:
             if not bola_1_na_mesa:
                 if len(bola_mesa_jogador) == 0:
                     information['ganhou'] = True
-                    winner = self.Scoreboard.jogadores[self.jogador_atual]
+                    information['winner'] = self.Scoreboard.jogadores[self.jogador_atual]
                 else:
                     information['perdeu'] = True
-                    winner = self.Scoreboard.jogadores[1 - self.jogador_atual]
+                    information['winner'] = self.Scoreboard.jogadores[1 - self.jogador_atual]
 
-                break
+                return information
 
             if not information['joga_novamente']:
                 self.jogador_atual = not self.jogador_atual
 
-            print("terminou a jogada")
-            self.iniciou_jogada = False
+            return information
 
-        # Episódio final
+
+
+    def run_game(self):
+        while True:
+            print("Iniciando jogada", self.jogador_atual)
+
+            while not self.iniciou_jogada:
+                self.table.draw()
+
+            information = self.table.step(angulo=self.iniciou_jogada_angulo,
+                                        intensidade=self.inicou_jogada_intensidade)
+            information = self.make_step(information)
+            self.iniciou_jogada = False
+                
+            if information.get('winner',None) is not None:
+                print('Fim de jogo - ', information['winner'])
+                break
+            
         information['final'] = True
         print("Fim de jogo")
         self.iniciou_jogada = True
 
         # Chamar a tela final
         if cfg.end_screen: 
-            end_screen = EndScreen(winner)
+            end_screen = EndScreen(information['winner'])
             result = end_screen.run()
             if result == "menu":
                 return  # Volta ao menu principal
@@ -220,7 +233,7 @@ class GAME:
         #
         
         
-        bolas_jogador = [b for b in self.numero_bolas[self.jpgador_atual]]
+        bolas_jogador = [b for b in self.numero_bolas[self.jogador_atual]]
         bolas_jogador_mesa = [b.numero for b in self.table.bolas if b.numero in bolas_jogador]
         
         # {len(bolas_jogador_mesa)}/{len(bolas_jogador)}
@@ -230,39 +243,47 @@ class GAME:
         bolas_mesa = len([bola for bola in self.table.bolas if bola.numero != 0])
         
         # cria um vetor de 16 posicao
-        state = torch.zeros(16,4, device=cfg.device)
+        state = torch.zeros(15,4, device=cfg.device)
         
         bola_branca_position = None
         
         index = 0
         for bola in self.table.bolas:
+            position_bola = bola.get_position()
+            
             if bola.numero == 0:
-                bola_branca_position = torch.tensor([bola.posicao[0], bola.posicao[1]], device=cfg.device)
+                bola_branca_position = torch.tensor([position_bola[0], position_bola[1]], device=cfg.device)
             elif bola.numero == 1:
                 bola_do_jogador=False
                 if (len(bolas_jogador) != 0) and (len(bolas_jogador_mesa) == 0 ): # quando o jogador ja tiver as bolas associadas e quando fizer todas
                     bola_do_jogador = True 
                     
-                state[index] = torch.tensor([bola.posicao[0], 
-                                             bola.posicao[1], 
+                state[index] = torch.tensor([position_bola[0], 
+                                             position_bola[1], 
                                              1, # bola existe
                                              bola_do_jogador],
                                              device=cfg.device)
             else:
                 bola_jogador = bola.numero in bolas_jogador_atual
-                state[index] = torch.tensor([bola.posicao[0], 
-                                             bola.posicao[1], 
+                state[index] = torch.tensor([position_bola[0], 
+                                             position_bola[1], 
                                              1, # bola existe
                                              bola_jogador
                                             ])
-                                             
+            index += 1                                 
         return state, bola_branca_position
         
     def single_observation_space():
-        return 16*4 + 2
+        return 15*4 + 2
     # cada bola, possui x,y, se existe, se é do jogador
     
-
+    def step(self, actions):
+        angulo, forca = actions
+        informations  = self.table.step(angulo, forca)
+        
+        return self.get_observations(), informations
+        
+        
 
 
 
