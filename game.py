@@ -150,7 +150,6 @@ class GAME:
     
     
     def make_step(self, information):
-            information['final'] = False
             information = self.rules(information, self.jogador_atual)
             information['winner'] = None
             
@@ -216,7 +215,6 @@ class GAME:
                 print('Fim de jogo - ', information['winner'])
                 break
             
-        information['final'] = True
         print("Fim de jogo")
         self.iniciou_jogada = True
 
