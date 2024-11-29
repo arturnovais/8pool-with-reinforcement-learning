@@ -77,14 +77,6 @@ class GAME:
             else:
                 self.numero_bolas = [bolas_adversario, bolas_jogador]
 
-            # Associa as imagens das bolas aos jogadores no placar
-            self.Scoreboard.bolas_imagens[1] = first_ball.imagem  # Jogador atual
-            adversario_primeira_bola = next(
-                (b for b in self.table.bolas if b.numero in bolas_adversario), None
-            )
-            if adversario_primeira_bola:
-                self.Scoreboard.bolas_imagens[0] = adversario_primeira_bola.imagem  # Adversário
-
             # Verifica vitória ou derrota na primeira jogada
             if 1 in [b.numero for b in bolas_caidas_sem_branca]:
                 if all(b.numero in bolas_jogador for b in bolas_caidas_sem_branca):
@@ -274,12 +266,19 @@ class GAME:
         return 15*4 + 2
     # cada bola, possui x,y, se existe, se é do jogador
     
-    def step(self, actions):
+    def step(self, actions, rewards_function=None):
         angulo, forca = actions
         informations  = self.table.step(angulo, forca)
         informations = self.make_step(informations)
         
-        return self.get_observations(), informations
+        terminations = informations.get('perdeu', False) or informations.get('ganhou', False) or informations.get('winner', None) is not None
+        
+        rewards = None
+        if rewards_function is not None:
+            rewards = rewards_function(informations)
+            
+        
+        return self.get_observations(), informations , terminations, rewards
         
         
 

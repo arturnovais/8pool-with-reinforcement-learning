@@ -1,6 +1,6 @@
 import pygame
 import utils.config as cfg
-
+from utils.Ball import carregar_imagem_bola
 
 class Scoreboard:
     def __init__(self, jogadores: list, game):
@@ -9,9 +9,27 @@ class Scoreboard:
         """
         self.jogadores = jogadores
         self.game = game
-        self.bolas_imagens = [None, None]  # Armazena a imagem da bola associada a cada jogador
-
+        self.bolas_imagens = None # Armazena a imagem da bola associada a cada jogador
+        
+        
+    
+        #                # Associa as imagens das bolas aos jogadores no placar
+        #            self.Scoreboard.bolas_imagens[1] = first_ball.imagem  # Jogador atual
+        #            adversario_primeira_bola = next(
+        #                (b for b in self.table.bolas if b.numero in bolas_adversario), None
+        #            )
+        #            if adversario_primeira_bola:
+        #                self.Scoreboard.bolas_imagens[0] = adversario_primeira_bola.imagem  # Adversário
+                
     def draw(self, screen):
+        
+        if self.bolas_imagens is None:
+            self.bolas_imagens = [ carregar_imagem_bola(2),  carregar_imagem_bola(3) ] 
+            self.bolas_imagens[0] =  pygame.transform.scale(self.bolas_imagens[0], 
+                                                            (int(cfg.bola_raio * 4), int(cfg.bola_raio * 4)))
+            self.bolas_imagens[1] =  pygame.transform.scale(self.bolas_imagens[1], 
+                                                            (int(cfg.bola_raio * 4), int(cfg.bola_raio * 4)))
+            
         """
         Desenha o placar na tela do jogo.
         """
@@ -48,14 +66,23 @@ class Scoreboard:
             pygame.draw.rect(screen, (255, 255, 255), player_rect, 1)
 
             # Imagem da bola associada
-            if self.bolas_imagens[i] is not None:
+            bolas_jogador = [b for b in self.game.numero_bolas[i]]
+            
+            bolas_imagem = None
+            if len(bolas_jogador) > 0:
+                if bolas_jogador[0] % 2 == 0:
+                    bolas_imagem = self.bolas_imagens[0]
+                else:
+                    bolas_imagem = self.bolas_imagens[1]
+                    
+            if bolas_imagem is not None:
                 # Exibir a imagem associada ao jogador
                 img_x = player_rect.x + 5
-                img_y = player_rect.y + 5
-                screen.blit(self.bolas_imagens[i], (img_x, img_y))
+                img_y = player_rect.y
+                screen.blit(bolas_imagem, (img_x, img_y))
 
             # Texto do jogador
-            bolas_jogador = [b for b in self.game.numero_bolas[i]]
+            
             bolas_jogador_mesa = [b.numero for b in self.game.table.bolas if b.numero in bolas_jogador]
             player_text = font.render(
                 f"{self.jogadores[i]}: {len(bolas_jogador_mesa)}/{len(bolas_jogador)}",
