@@ -279,6 +279,11 @@ class GAME:
             
         
         return self.get_observations(), informations , terminations, rewards
+    
+    
+    def close(self):
+        pass
+
         
         
 
