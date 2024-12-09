@@ -262,7 +262,7 @@ class Table:
         
         #self.taco.aplicar_tacada(self.bola_branca,angulo, intensidade)
         
-        print("intesidade", intensidade)
+        #print("intesidade", intensidade)
         forca = self.taco.calcular_forca(intensidade, angulo)
         
         self.bola_branca.aplicar_forca(forca)

@@ -163,8 +163,8 @@ class GAME:
                 if len(bolas_mesa_adversario) > 0:
                     self.table.bolas.remove(bolas_mesa_adversario[0])
                 else:
-                    print("Nao tem mais bolas do adversario na mesa")
-                    print("perdeu")
+                    #print("Nao tem mais bolas do adversario na mesa")
+                    #print("perdeu")
                     information['perdeu'] = True
                     information['winner'] = self.Scoreboard.jogadores[1 - self.jogador_atual]
                     return information
