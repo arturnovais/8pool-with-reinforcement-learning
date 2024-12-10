@@ -187,6 +187,7 @@ class Table:
 
         
     def reset(self):
+        self.buracos = self.definir_buracos()
         self.bolas = []
         self.bola_branca = None
         criar_bolas(self)
