@@ -40,16 +40,25 @@ class TransformersAtor(nn.Module):
         self.head_position = nn.Tanh() # Tanh para garantir que o angulo fique entre -1 e 1
         self.head_intensity = nn.Sigmoid() # Sigmoid para garantir que a intensidade fique entre 0 e 1
 
+        self.angulo = nn.Linear(2,1)
+        
+        
     def forward(self, x, bola_branca): 
+        print("\n\n\n\n\n ENTROU NA REDE")
+        
         # adiciona a dimensão da bolinha branca -> batch, (x,y,1,-1)
         b = bola_branca.shape[0]
         t_concat = torch.zeros(b,2, device=bola_branca.device)
         t_concat[:,0] = 1
         t_concat[:,1] = -1
         bola_branca = torch.concat( (bola_branca , t_concat), dim=-1).unsqueeze(1)
-        x = torch.concat((bola_branca,x),dim=1)
         
+        
+        
+        x = torch.concat((bola_branca,x),dim=1)
         x = self.embedding(x)        
+        
+        
         
         for layer in self.encoder_layers:
             x = layer(x)
@@ -60,15 +69,22 @@ class TransformersAtor(nn.Module):
         x = x[:,0,:]        
         x = self.mlp(x)
         
+        #print("x mlp",x)
+        
         # transforma o x em angulo e intensidade
         position = self.head_position(x[:,:2])
         intensity = self.head_intensity(x[:,2:])
         
+        
         x_sin = position[:,0:1] # seno
         x_cos = position[:,1:2] # cosseno
         
-        angles_deg = torch.rad2deg(torch.atan2(x_sin, x_cos)) # converte para graus
-        angles_deg = torch.where(angles_deg < 0, angles_deg + 360, angles_deg)
+        
+        angles_deg = self.angulo(torch.concat((x_sin,x_cos),dim=-1))
+        angles_deg = torch.clip(angles_deg, 0, 360)
+        
+        #angles_deg = torch.rad2deg(torch.atan2(x_sin, x_cos)) # converte para graus
+        #angles_deg = torch.where(angles_deg < 0, angles_deg + 360, angles_deg)
         
         # concatena o resultado
         return torch.concat((angles_deg,intensity),dim=-1) # Retorna o angulo e a intensidade

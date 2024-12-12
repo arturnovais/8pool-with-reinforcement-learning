@@ -248,7 +248,8 @@ class Table:
         
         
         pygame.display.flip()
-        self.clock.tick(60)
+        if cfg.use_clock:
+            self.clock.tick(60)
 
     
     
