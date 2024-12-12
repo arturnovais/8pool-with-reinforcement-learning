@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Args:
+class Model_args:
     embed_dim : int = 128
     num_heads : int = 8         
     ff_dim : int = embed_dim * 2
@@ -13,28 +13,28 @@ class Args:
     
 
 class TransformersAtor(nn.Module):
-    def __init__(self, args : Args):
+    def __init__(self, model_args : Model_args):
         super(TransformersAtor, self).__init__()
         
         # Layer de embedding (entra uma bola com (x,y,z, w) e sai um vetor de 128 dimensões que representa a bola)
-        self.embedding = nn.Linear(4, args.embed_dim)
+        self.embedding = nn.Linear(4, model_args.embed_dim)
         
         # Encoder layers
         self.encoder_layers = nn.ModuleList([
-            nn.TransformerEncoderLayer( d_model=args.embed_dim, 
-                                       nhead=args.num_heads, 
-                                       dim_feedforward=args.ff_dim, 
-                                       dropout=args.dropout) for _ in range(args.num_layers)
+            nn.TransformerEncoderLayer( d_model=model_args.embed_dim, 
+                                       nhead=model_args.num_heads, 
+                                       dim_feedforward=model_args.ff_dim, 
+                                       dropout=model_args.dropout) for _ in range(model_args.num_layers)
         ])
         
         # Layer normalization
-        self.layer_norm = nn.LayerNorm(args.embed_dim)
+        self.layer_norm = nn.LayerNorm(model_args.embed_dim)
         
         #MlP para gerar regressão de angulo e intensidade
         self.mlp = nn.Sequential( 
-                nn.Linear(args.embed_dim, args.ff_dim),
+                nn.Linear(model_args.embed_dim, model_args.ff_dim),
                 nn.Tanh(),
-                nn.Linear(args.ff_dim, 3) # Vamos sair com (sen, cos, intensidade)
+                nn.Linear(model_args.ff_dim, 3) # Vamos sair com (sen, cos, intensidade)
         )
         
         self.head_position = nn.Tanh() # Tanh para garantir que o angulo fique entre -1 e 1
@@ -75,26 +75,26 @@ class TransformersAtor(nn.Module):
 
 
 class TransformerValueModel(nn.Module):
-    def __init__(self, args : Args):
+    def __init__(self, model_args : Model_args):
         super(TransformerValueModel, self).__init__()
         
-        self.embedding = nn.Linear(4, args.embed_dim)
+        self.embedding = nn.Linear(4, model_args.embed_dim)
         
         self.encoder_layers = nn.ModuleList([
             nn.TransformerEncoderLayer(
-                d_model=args.embed_dim,
-                nhead=args.num_heads,
-                dim_feedforward=args.ff_dim,
-                dropout=args.dropout
-            ) for _ in range(args.num_layers)
+                d_model=model_args.embed_dim,
+                nhead=model_args.num_heads,
+                dim_feedforward=model_args.ff_dim,
+                dropout=model_args.dropout
+            ) for _ in range(model_args.num_layers)
         ])
         
-        self.layer_norm = nn.LayerNorm(args.embed_dim)
+        self.layer_norm = nn.LayerNorm(model_args.embed_dim)
         
         self.value_head = nn.Sequential(
-            nn.Linear(args.embed_dim, args.ff_dim),  # Projeta para dimensão intermediária
+            nn.Linear(model_args.embed_dim, model_args.ff_dim),  # Projeta para dimensão intermediária
             nn.ReLU(),                    # Ativação não-linear
-            nn.Linear(args.ff_dim, 1)          # Saída escalar (valor do estado)
+            nn.Linear(model_args.ff_dim, 1)          # Saída escalar (valor do estado)
         )
 
     def forward(self, x, bola_branca):

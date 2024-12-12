@@ -18,4 +18,5 @@ def reset_random_one_ball(env,raio_buraco = 13):
     env.table.bolas = env.table.bolas[1:2] + [env.table.bola_branca]
     numero_bola = env.table.bolas[0].numero
     env.numero_bolas = [[ numero_bola ], [ numero_bola ]]
-
+    
+    return env.get_observations()
