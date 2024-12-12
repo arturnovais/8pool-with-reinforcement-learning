@@ -7,6 +7,14 @@ display_table_height = 400
 bola_branca_posicao_inicial = ( (display_width / 2 - display_table_width / 2) + display_table_width / 5,
                                 (display_height / 2 - display_table_height / 2) + display_table_height / 2)
 
+
+table_x_min = (display_width / 2 - display_table_width / 2)
+table_x_max = table_x_min + display_table_width
+table_y_min = (display_height / 2 - display_table_height / 2)
+table_y_max = table_y_min + display_table_height
+
+
+
 bola_branca_raio = 10
 bola_branca_massa = 1.7
 
