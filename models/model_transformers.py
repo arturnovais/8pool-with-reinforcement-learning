@@ -34,25 +34,20 @@ class TransformersAtor(nn.Module):
         self.mlp = nn.Sequential( 
                 nn.Linear(model_args.embed_dim, model_args.ff_dim),
                 nn.Tanh(),
-                nn.Linear(model_args.ff_dim, 3) # Vamos sair com (sen, cos, intensidade)
+                nn.Linear(model_args.ff_dim, 2) # Vamos sair com (sen, cos, intensidade)
         )
         
-        self.head_position = nn.Tanh() # Tanh para garantir que o angulo fique entre -1 e 1
+        #self.head_position = nn.Tanh() # Tanh para garantir que o angulo fique entre -1 e 1
         self.head_intensity = nn.Sigmoid() # Sigmoid para garantir que a intensidade fique entre 0 e 1
-
-        self.angulo = nn.Linear(2,1)
         
         
     def forward(self, x, bola_branca): 
-        print("\n\n\n\n\n ENTROU NA REDE")
-        
         # adiciona a dimensão da bolinha branca -> batch, (x,y,1,-1)
         b = bola_branca.shape[0]
         t_concat = torch.zeros(b,2, device=bola_branca.device)
         t_concat[:,0] = 1
         t_concat[:,1] = -1
         bola_branca = torch.concat( (bola_branca , t_concat), dim=-1).unsqueeze(1)
-        
         
         
         x = torch.concat((bola_branca,x),dim=1)
@@ -72,22 +67,29 @@ class TransformersAtor(nn.Module):
         #print("x mlp",x)
         
         # transforma o x em angulo e intensidade
-        position = self.head_position(x[:,:2])
-        intensity = self.head_intensity(x[:,2:])
+        position = x[:,:1]
+        
+        intensity = self.head_intensity(x[:,1:])
         
         
-        x_sin = position[:,0:1] # seno
-        x_cos = position[:,1:2] # cosseno
+        #position = torch.batch_norm(position, 0, 1, None, None, False, 0.1, 1e-5)
+        
+        radianos = 1.2*torch.pi*torch.cos( position * torch.pi)
+    
+        # [-pi, pi] -> [0,360]
+        
+        #x_sin = position[:,0:1] # seno
+        #x_cos = position[:,1:2] # cosseno
         
         
-        angles_deg = self.angulo(torch.concat((x_sin,x_cos),dim=-1))
-        angles_deg = torch.clip(angles_deg, 0, 360)
+        #angles_deg = self.angulo(torch.concat((x_sin,x_cos),dim=-1))
+        #angles_deg = torch.clip(angles_deg, 0, 360)
         
         #angles_deg = torch.rad2deg(torch.atan2(x_sin, x_cos)) # converte para graus
         #angles_deg = torch.where(angles_deg < 0, angles_deg + 360, angles_deg)
         
         # concatena o resultado
-        return torch.concat((angles_deg,intensity),dim=-1) # Retorna o angulo e a intensidade
+        return torch.concat((radianos,intensity),dim=-1) # Retorna o angulo e a intensidade
 
 
 class TransformerValueModel(nn.Module):
