@@ -1,13 +1,16 @@
 import torch
 from torch import nn
-from models.model_transformers import Model_args, TransformerValueModel, TransformersAtor
+from models.model_transformers import Model_args, TransformerValueModel, TransformersAtor , transformers_input
 from torch.distributions import Normal
 
 class Agent(nn.Module):
     def __init__(self, action_dim, model_args):
         super().__init__()
-        self.critic = TransformerValueModel(model_args)  # Modelo para estimar o valor
-        self.actor_mean = TransformersAtor(model_args)  # Modelo para estimar a média das ações
+        
+        self.encoder = transformers_input(model_args)
+        
+        self.critic = TransformerValueModel(self.encoder,model_args)  # Modelo para estimar o valor
+        self.actor_mean = TransformersAtor(self.encoder,model_args)  # Modelo para estimar a média das ações
         self.actor_log_std = nn.Parameter(torch.zeros(action_dim))  # Desvio padrão fixo
 
     def get_value(self, state, bola_branca):

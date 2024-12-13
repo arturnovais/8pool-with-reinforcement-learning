@@ -10,14 +10,16 @@ class Model_args:
     ff_dim : int = embed_dim * 2
     num_layers : int =  2       
     dropout : float = 0.1         
-    
 
-class TransformersAtor(nn.Module):
+
+class transformers_input(nn.Module):
+    
     def __init__(self, model_args : Model_args):
-        super(TransformersAtor, self).__init__()
+        super(transformers_input, self).__init__()
         
         # Layer de embedding (entra uma bola com (x,y,z, w) e sai um vetor de 128 dimensões que representa a bola)
-        self.embedding = nn.Linear(4, model_args.embed_dim)
+        self.embedding       = nn.Linear(4, model_args.embed_dim)
+        # TODO: self.embedding_white = nn.Linear(2, model_args.embed_dim)
         
         # Encoder layers
         self.encoder_layers = nn.ModuleList([
@@ -27,33 +29,19 @@ class TransformersAtor(nn.Module):
                                        dropout=model_args.dropout) for _ in range(model_args.num_layers)
         ])
         
-        # Layer normalization
         self.layer_norm = nn.LayerNorm(model_args.embed_dim)
         
-        #MlP para gerar regressão de angulo e intensidade
-        self.mlp = nn.Sequential( 
-                nn.Linear(model_args.embed_dim, model_args.ff_dim),
-                nn.Tanh(),
-                nn.Linear(model_args.ff_dim, 2) # Vamos sair com (sen, cos, intensidade)
-        )
-        
-        #self.head_position = nn.Tanh() # Tanh para garantir que o angulo fique entre -1 e 1
-        self.head_intensity = nn.Sigmoid() # Sigmoid para garantir que a intensidade fique entre 0 e 1
-        
-        
     def forward(self, x, bola_branca): 
-        # adiciona a dimensão da bolinha branca -> batch, (x,y,1,-1)
+
         b = bola_branca.shape[0]
+
         t_concat = torch.zeros(b,2, device=bola_branca.device)
         t_concat[:,0] = 1
         t_concat[:,1] = -1
+        
         bola_branca = torch.concat( (bola_branca , t_concat), dim=-1).unsqueeze(1)
-        
-        
         x = torch.concat((bola_branca,x),dim=1)
         x = self.embedding(x)        
-        
-        
         
         for layer in self.encoder_layers:
             x = layer(x)
@@ -61,53 +49,44 @@ class TransformersAtor(nn.Module):
         x = self.layer_norm(x)
         
         # bola branca é nosso Value, que ira representar o estado do jogo
-        x = x[:,0,:]        
+        return  x[:,0,:]
+
+class TransformersAtor(nn.Module):
+    def __init__(self, encoder, model_args : Model_args):
+        super(TransformersAtor, self).__init__()
+        
+        self.econder = encoder
+        
+        self.mlp = nn.Sequential( 
+                nn.Linear(model_args.embed_dim, model_args.ff_dim),
+                nn.Tanh(),
+                nn.Linear(model_args.ff_dim, 2) # Vamos sair com (sen, cos, intensidade)
+        )
+        
+        self.head_intensity = nn.Sigmoid() # Sigmoid para garantir que a intensidade fique entre 0 e 1
+        
+        
+    def forward(self, x, bola_branca): 
+        
+        x = self.econder(x,bola_branca)
+        
         x = self.mlp(x)
         
-        #print("x mlp",x)
         
-        # transforma o x em angulo e intensidade
         position = x[:,:1]
         
         intensity = self.head_intensity(x[:,1:])
         
-        
-        #position = torch.batch_norm(position, 0, 1, None, None, False, 0.1, 1e-5)
-        
         radianos = 1.2*torch.pi*torch.cos( position * torch.pi)
-    
-        # [-pi, pi] -> [0,360]
         
-        #x_sin = position[:,0:1] # seno
-        #x_cos = position[:,1:2] # cosseno
-        
-        
-        #angles_deg = self.angulo(torch.concat((x_sin,x_cos),dim=-1))
-        #angles_deg = torch.clip(angles_deg, 0, 360)
-        
-        #angles_deg = torch.rad2deg(torch.atan2(x_sin, x_cos)) # converte para graus
-        #angles_deg = torch.where(angles_deg < 0, angles_deg + 360, angles_deg)
-        
-        # concatena o resultado
-        return torch.concat((radianos,intensity),dim=-1) # Retorna o angulo e a intensidade
+        return torch.concat((radianos,intensity),dim=-1)
 
 
 class TransformerValueModel(nn.Module):
-    def __init__(self, model_args : Model_args):
+    def __init__(self,encoder, model_args : Model_args):
         super(TransformerValueModel, self).__init__()
         
-        self.embedding = nn.Linear(4, model_args.embed_dim)
-        
-        self.encoder_layers = nn.ModuleList([
-            nn.TransformerEncoderLayer(
-                d_model=model_args.embed_dim,
-                nhead=model_args.num_heads,
-                dim_feedforward=model_args.ff_dim,
-                dropout=model_args.dropout
-            ) for _ in range(model_args.num_layers)
-        ])
-        
-        self.layer_norm = nn.LayerNorm(model_args.embed_dim)
+        self.encoder = encoder
         
         self.value_head = nn.Sequential(
             nn.Linear(model_args.embed_dim, model_args.ff_dim),  # Projeta para dimensão intermediária
@@ -116,29 +95,8 @@ class TransformerValueModel(nn.Module):
         )
 
     def forward(self, x, bola_branca):
-        # Adiciona a dimensão da bolinha branca -> batch, (x,y,1,-1)
-        b = bola_branca.shape[0]
-        t_concat = torch.zeros(b, 2, device=bola_branca.device)
-        t_concat[:, 0] = 1
-        t_concat[:, 1] = -1
-        bola_branca = torch.concat((bola_branca, t_concat), dim=-1).unsqueeze(1)
-        x = torch.concat((bola_branca, x), dim=1)
         
-        # Passa pela camada de embedding
-        x = self.embedding(x)
-        
-        # Passa pelas camadas de encoder
-        for layer in self.encoder_layers:
-            x = layer(x)
-        
-        # Normalização final
-        x = self.layer_norm(x)
-        
-        # Seleciona a representação do estado do jogo (primeiro token)
-        x = x[:, 0, :]
-        
-        # Passa pela cabeça de valor para prever V(s)
+        x = self.encoder(x,bola_branca)
         value = self.value_head(x)
         
-        # Garante que a saída está no formato (batch_size,)
-        return value  # Remove apenas a última dimensão
+        return value 
