@@ -99,15 +99,17 @@ class CollisionDetector:
         
         # quem escreveu isso não entendeu nada de física
         if bola.posicao[0] - bola.raio < x_start:
-            bola.posicao[0] = x_start + bola.raio
-            bola.velocidade[0] = -bola.velocidade[0] * self.elasticidade
+            bola.posicao = torch.tensor([x_start + bola.raio, bola.posicao[1] ], device=cfg.device, dtype=torch.float32)
+            bola.velocidade = torch.tensor([-bola.velocidade[0] * self.elasticidade, bola.velocidade[1]], device=cfg.device, dtype=torch.float32)
+                        
         elif bola.posicao[0] + bola.raio > x_start + largura:
-            bola.posicao[0] = x_start + largura - bola.raio
-            bola.velocidade[0] = bola.velocidade[0] * self.elasticidade
+            bola.posicao = torch.tensor([x_start + largura - bola.raio, bola.posicao[1]], device=cfg.device, dtype=torch.float32)
+            bola.velocidade = torch.tensor([-bola.velocidade[0] * self.elasticidade, bola.velocidade[1]], device=cfg.device, dtype=torch.float32)
 
         if bola.posicao[1] - bola.raio < y_start:
-            bola.posicao[1] = y_start + bola.raio
-            bola.velocidade[1] =  -bola.velocidade[1] * self.elasticidade
+            bola.posicao = torch.tensor([bola.posicao[0], y_start + bola.raio], device=cfg.device, dtype=torch.float32)
+            bola.velocidade = torch.tensor([bola.velocidade[0], -bola.velocidade[1] * self.elasticidade], device=cfg.device, dtype=torch.float32)
+
         elif bola.posicao[1] + bola.raio > y_start + altura:
-            bola.posicao[1] = y_start + altura - bola.raio
-            bola.velocidade[1] =  -bola.velocidade[1] * self.elasticidade
+            bola.posicao = torch.tensor([bola.posicao[0], y_start + altura - bola.raio], device=cfg.device, dtype=torch.float32)
+            bola.velocidade = torch.tensor([bola.velocidade[0], -bola.velocidade[1] * self.elasticidade], device=cfg.device, dtype=torch.float32)
