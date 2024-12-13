@@ -52,21 +52,6 @@ class Ball:
         forca = torch.tensor(forca, device=cfg.device, dtype=torch.float32) / self.massa
         self.velocidade = self.velocidade + forca * self.dt
         
-    
-    #def atualizar_estado_bola(self, bola: Ball, dt: float):
-    #    '''
-    #    Atualiza a posição da bola considerando as forças de atrito e resistência do ar.
-    #    
-    #    Args:
-    #        bola (Ball): A bola cujo estado será atualizado.
-    #        dt (float): Intervalo de tempo (em segundos) para atualização.
-    #    '''
-    #    bola.velocidade = self.ambiente_fisico.aplicar_atrito(bola.velocidade)
-    #    bola.velocidade = self.ambiente_fisico.aplicar_resistencia_ar(bola.velocidade)
-#
-    #    bola.posicao = bola.posicao + bola.velocidade * dt
-    #    
-        
     def atualizar_posicao(self, ambiente_fisico: PhysicsEnvironment):
         '''
         Atualiza a posição da bola levando em consideração a velocidade atual, o atrito e a resistência do ar.
@@ -191,3 +176,4 @@ def iniciar_bola_branca(table):
                                  )
     table.bolas.append(bola_branca)
     table.bola_branca = bola_branca
+

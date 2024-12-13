@@ -65,6 +65,12 @@ class Table:
         self.game = game
         self.device = device
         
+        
+        self.state_balls = torch.zeros(16, 4, device=self.device, dtype=torch.float32)
+        # [x, y, vx, vy, existe]
+        
+        
+        
     def definir_buracos(self) -> list:
         '''
         Define as posições e tamanhos dos seis buracos da mesa de sinuca.
@@ -150,7 +156,7 @@ class Table:
         """
         # Gerencia o estado das bolas e as colisões
         bolas_para_remover = []
-
+        
         for bola in self.bolas:
             bola.atualizar_posicao(self.ambiente_fisico)
             if self.detectar_buraco(bola):
@@ -158,7 +164,9 @@ class Table:
                 self.informations['bolas_caidas'].append(bola)
                 
             self.detecttor_colisao.detectar_colisao_borda(bola, self.x_start, self.y_start, self.largura, self.altura)
-
+            
+            
+            
 
 
         for i in range(len(self.bolas)):
@@ -170,8 +178,11 @@ class Table:
 
         # Remover bolas que caíram nos buracos
         if self.bola_branca in bolas_para_remover:
-            self.bola_branca.posicao = torch.tensor(cfg.bola_branca_posicao_inicial,device=cfg.device, dtype=torch.float32)
-            self.bola_branca.velocidade = torch.tensor([0, 0], device=self.device, dtype=torch.float32)
+            self.bola_branca.posicao[0] = cfg.bola_branca_posicao_inicial[0]
+            self.bola_branca.posicao[1] = cfg.bola_branca_posicao_inicial[1]
+            self.bola_branca.velocidade[0] = 0
+            self.bola_branca.velocidade[1] = 0
+            
             
         for bola in bolas_para_remover:
             if bola != self.bola_branca:
