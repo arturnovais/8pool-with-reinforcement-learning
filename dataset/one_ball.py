@@ -30,16 +30,19 @@ def one_ball(amostras = 7_000):
     for _ in tqdm(range(amostras)):
         
         state, state_bola_branca = reset_random_one_ball(env=env)
-        x, y = state_bola_branca
-        x1, y1 = state[0][:2]
+        #x, y = state_bola_branca
+        #x1, y1 = state[0][:2]
 
         distance = (state_bola_branca -state[0][:2]).pow(2).sum().item() **0.5
         
-        x *= cfg.display_table_width
-        x1 *= cfg.display_table_width
-        y *= cfg.display_table_height
-        y1 *= cfg.display_table_height
-        angulo = torch.atan2(y1 - y, x1 - x)
+        #x *= cfg.display_table_width
+        #x1 *= cfg.display_table_width
+        #y *= cfg.display_table_height
+        #y1 *= cfg.display_table_height
+        
+        
+        x,y = (state - state_bola_branca)*torch.tensor([cfg.display_table_width, cfg.display_table_height])
+        angulo = torch.atan2(y,x).item()
         
         intensidade  = torch.tensor(distance * 0.42)
         

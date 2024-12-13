@@ -7,6 +7,9 @@ class Agent(nn.Module):
     def __init__(self, action_dim, model_args):
         super().__init__()
         
+        if action_dim is None:
+            action_dim = 2
+            
         self.encoder = transformers_input(model_args)
         
         self.critic = TransformerValueModel(self.encoder,model_args)  # Modelo para estimar o valor
