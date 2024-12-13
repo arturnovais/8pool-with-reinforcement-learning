@@ -206,4 +206,10 @@ Esse exemplo aguarda o início de uma jogada, executa a ação e imprime a recom
 
 
 
+# Modelagem 
 
+
+
+<img src="imgs/lucas_ideia.png" alt="drawing" width="800"/>
+
+[créditos: Lucas Pereira](https://github.com/apereiral)
