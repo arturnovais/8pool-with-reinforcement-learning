@@ -11,7 +11,7 @@ class Agent(nn.Module):
             action_dim = 2
             
         #self.encoder = transformers_input(model_args)
-        self.encoder = mlp_input(model_args)
+        self.encoder = transformers_input(model_args)
         
         self.critic = TransformerValueModel(self.encoder,model_args)  # Modelo para estimar o valor
         self.actor_mean = TransformersAtor(self.encoder,model_args)  # Modelo para estimar a média das ações

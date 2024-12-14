@@ -49,7 +49,7 @@ class transformers_input(nn.Module):
         x = self.layer_norm(x)
         
         # bola branca é nosso Value, que ira representar o estado do jogo
-        return  x[:,0,:]
+        return  x.mean(dim=1)
 
 
 
