@@ -22,7 +22,7 @@ import pickle
 
 from tqdm import tqdm
 
-def one_ball(amostras = 7_000):
+def one_ball(amostras = 15_000):
     env = GAME(draw=False)  
     
     states, states_white, label = [],[],[]

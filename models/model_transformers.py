@@ -19,6 +19,7 @@ class transformers_input(nn.Module):
         
         # Layer de embedding (entra uma bola com (x,y,z, w) e sai um vetor de 128 dimensões que representa a bola)
         self.embedding       = nn.Linear(4, model_args.embed_dim)
+        self.embedding_white = nn.Linear(2, model_args.embed_dim)
         # TODO: self.embedding_white = nn.Linear(2, model_args.embed_dim)
         
         # Encoder layers
@@ -31,22 +32,30 @@ class transformers_input(nn.Module):
         
         self.layer_norm = nn.LayerNorm(model_args.embed_dim)
         
+        
+        self.apply(self._init_weights)
+        
+    def _init_weights(self, module):
+        if isinstance(module, nn.Linear):
+            nn.init.xavier_uniform_(module.weight)
+            if module.bias is not None:
+                nn.init.constant_(module.bias, 0)
+        
     def forward(self, x, bola_branca): 
 
         b = bola_branca.shape[0]
 
-        t_concat = torch.zeros(b,2, device=bola_branca.device)
-        t_concat[:,0] = 1
-        t_concat[:,1] = -1
+        bola_branca = self.embedding_white(bola_branca)
+        x = self.embedding(x)
         
-        bola_branca = torch.concat( (bola_branca , t_concat), dim=-1).unsqueeze(1)
-        x = torch.concat((bola_branca,x),dim=1)
-        x = self.embedding(x)        
+        bola_branca = bola_branca.unsqueeze(1)
+        x = torch.cat((bola_branca, x), dim=1)
         
+        x = self.layer_norm(x)  # Normalização antes do Transformer
         for layer in self.encoder_layers:
             x = layer(x)
-    
-        x = self.layer_norm(x)
+            
+        x = self.layer_norm(x)  # Normalização final
         
         # bola branca é nosso Value, que ira representar o estado do jogo
         return  x.mean(dim=1)
