@@ -40,9 +40,8 @@ def one_ball(amostras = 7_000):
         #y *= cfg.display_table_height
         #y1 *= cfg.display_table_height
         
-        
-        x,y = (state - state_bola_branca)*torch.tensor([cfg.display_table_width, cfg.display_table_height])
-        angulo = torch.atan2(y,x).item()
+        x,y = (state[0][:2] - state_bola_branca)*torch.tensor([cfg.display_table_width, cfg.display_table_height])
+        angulo = torch.atan2(y,x)
         
         intensidade  = torch.tensor(distance * 0.42)
         
