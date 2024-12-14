@@ -11,20 +11,20 @@ def train():
     with open(dataset, 'rb') as f:
         dataset = pickle.load(f)
         
-    states, states_white, label = dataset['states'], dataset['states_white'], dataset['label']
+    states, states_white, labels = dataset['states'], dataset['states_white'], dataset['label']
     
     states_white = [ s.unsqueeze(0) for s in states_white]
     states = [ s.unsqueeze(0) for s in states]
-    label = [ s.unsqueeze(0) for s in label]
+    labels = [ s.unsqueeze(0) for s in labels]
     
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    batch_size = 10
+    batch_size = 128
     
     states = torch.concatenate(states).to(device)
     states_white = torch.concatenate(states_white).to(device)
-    label = torch.concatenate(label).to(device)
+    labels = torch.concatenate(labels).to(device)
 
     
     agent = Agent(action_dim=2, model_args=Model_args()).to(device)
@@ -38,9 +38,9 @@ def train():
     states_white[:,1] = states_white[:,1] / 400
     # -------------------------
 
-
-    optimizer = torch.optim.Adam(agent.parameters(), lr=0.0001)
+    epochs = 10
     loss = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(agent.parameters(), lr=0.001)
     
     
     split_idx = 6000
@@ -54,29 +54,34 @@ def train():
     
     
     
+    losses = []
     
-    
-    for i in range(0, len(states), batch_size):
-        batch_states = states[i:i+batch_size]
-        batch_states_white = states_white[i:i+batch_size]
-        batch_label = label[i:i+batch_size]
-        
-        output = agent.actor_mean(batch_states, batch_states_white)
+    for epc in range(epochs):
+        for i in range(0, len(states), batch_size):
+            batch_states = states[i:i+batch_size]
+            batch_states_white = states_white[i:i+batch_size]
+            batch_label = labels[i:i+batch_size]
+            
+            output = agent.actor_mean(batch_states, batch_states_white)
 
-        loss_value = loss(output, batch_label)
-        
-        
-        optimizer.zero_grad()
-        loss_value.backward()
-        optimizer.step()
-        
-        
-        if i % (batch_size * 50) == 0:
-            print(f"Batch {i // batch_size}: Loss = {loss_value.item():.4f}")
-            evaluate(agent, (test_states, test_states_white, test_labels))
-
-             break
+            loss_value = loss(output, batch_label)
+            
+            
+            optimizer.zero_grad()
+            loss_value.backward()
+            optimizer.step()
+            
+            
+        print(f"Epoch {epc}: Loss = {loss_value.item():.4f}")
+        evaluate(agent, (test_states, test_states_white, test_labels))
+        agent.train()    
+                
+            #if i % (batch_size * 50) == 0:
+                #print(f"Batch {i // batch_size}: Loss = {loss_value.item():.4f}")
+                #evaluate(agent, (test_states, test_states_white, test_labels))
+                #agent.train()
          
+
          
          
          
@@ -99,8 +104,4 @@ def evaluate(agent, data):
 if __name__ == '__main__':
     train()
     
-    
-    
-
-def evaluate(model, data):
-    
+        

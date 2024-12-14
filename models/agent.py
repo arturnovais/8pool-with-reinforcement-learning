@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from models.model_transformers import Model_args, TransformerValueModel, TransformersAtor , transformers_input
+from models.model_transformers import Model_args, TransformerValueModel, TransformersAtor , transformers_input, mlp_input
 from torch.distributions import Normal
 
 class Agent(nn.Module):
@@ -10,7 +10,8 @@ class Agent(nn.Module):
         if action_dim is None:
             action_dim = 2
             
-        self.encoder = transformers_input(model_args)
+        #self.encoder = transformers_input(model_args)
+        self.encoder = mlp_input(model_args)
         
         self.critic = TransformerValueModel(self.encoder,model_args)  # Modelo para estimar o valor
         self.actor_mean = TransformersAtor(self.encoder,model_args)  # Modelo para estimar a média das ações
