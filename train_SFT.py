@@ -26,7 +26,6 @@ def train():
     states_white = torch.concatenate(states_white).to(device)
     label = torch.concatenate(label).to(device)
 
-
     
     agent = Agent(action_dim=2, model_args=Model_args()).to(device)
     
@@ -44,13 +43,17 @@ def train():
     loss = torch.nn.MSELoss()
     
     
-    test_states =  states[6000:]
-    test_states_white = states_white[6000:]
-    test_label = label[6000:]
+    split_idx = 6000
+    test_states = states[split_idx:]
+    test_states_white = states_white[split_idx:]
+    test_labels = labels[split_idx:]
+
+    train_states = states[:split_idx]
+    train_states_white = states_white[:split_idx]
+    train_labels = labels[:split_idx]
     
-    states = states[:6000]
-    states_white = states_white[:6000]
-    label = label[:6000]
+    
+    
     
     
     for i in range(0, len(states), batch_size):
@@ -61,8 +64,43 @@ def train():
         output = agent.actor_mean(batch_states, batch_states_white)
 
         loss_value = loss(output, batch_label)
-        print(loss_value)
-        break
+        
+        
+        optimizer.zero_grad()
+        loss_value.backward()
+        optimizer.step()
+        
+        
+        if i % (batch_size * 50) == 0:
+            print(f"Batch {i // batch_size}: Loss = {loss_value.item():.4f}")
+            evaluate(agent, (test_states, test_states_white, test_labels))
+
+             break
+         
+         
+         
+         
+def evaluate(agent, data):
+    test_states, test_states_white, test_labels = data
+    
+    agent.eval()  # Coloca o modelo em modo de avaliação
+
+    with torch.no_grad():
+        output = agent.actor_mean(test_states, test_states_white)
+        mse = torch.nn.functional.mse_loss(output, test_labels)
+
+    print(f"Mean Squared Error (MSE) on test data: {mse.item():.4f}")         
+         
+         
+         
+         
+         
 
 if __name__ == '__main__':
     train()
+    
+    
+    
+
+def evaluate(model, data):
+    
