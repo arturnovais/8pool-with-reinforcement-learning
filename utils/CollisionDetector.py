@@ -50,7 +50,7 @@ class CollisionDetector:
         
         # Evita divisão por zero
         if distancia == 0:
-            distancia = 0.01
+            distancia = 0.000001
 
         # Vetor normal e tangente
         normal = dist_entre_bolas / distancia

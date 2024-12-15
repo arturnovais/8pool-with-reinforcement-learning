@@ -56,6 +56,6 @@ delta_tempo = 1
 
 # cue
 # max
-forca_maxima =  40 
+forca_maxima =  30 
 
 use_clock = True
