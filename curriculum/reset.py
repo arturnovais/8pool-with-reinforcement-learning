@@ -1,7 +1,7 @@
 import utils.config as cfg
 import torch
 
-def reset_random_one_ball(env,raio_buraco = 13):
+def reset_random_one_ball(env,raio_buraco = 20):
     ## iniciar o ambiente com a configuração do jogo com apenas uma bola na mesa. 
     # - A bola branca em uma posição aleatória
     # - se não bater na bola, acabou a jogada
@@ -11,13 +11,13 @@ def reset_random_one_ball(env,raio_buraco = 13):
     epson = raio_buraco*2
 
     env.reset()
-    env.table.bolas = env.table.bolas[:2] + [env.table.bola_branca]
+    env.table.bolas = env.table.bolas[:3] + [env.table.bola_branca]
     numero_bola = env.table.bolas[1].numero
         
-    for _ ,  bola in enumerate(env.table.bolas[1:]):
+    for _ ,  bola in enumerate(env.table.bolas[1:3]):
         bola.posicao[1] = torch.rand(1).item() * (env.table.altura - epson*2  )  + env.table.y_start + epson
         bola.posicao[0] = torch.rand(1).item() * (env.table.largura - epson*2  ) + env.table.x_start + epson
         
-    env.numero_bolas = [[ numero_bola ], [ numero_bola ]]
+    env.numero_bolas = [[ numero_bola ], [ env.table.bolas[2].numero]]
         
     return env.get_observations()

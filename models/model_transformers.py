@@ -124,8 +124,8 @@ class TransformersAtor(nn.Module):
         
         
         
-        x_min = -0.08  # Limite inferior
-        z_max = 0.08  # Limite superior
+        x_min = -0.02  # Limite inferior
+        z_max = 0.02  # Limite superior
 
         # Transformar o noise para [x, z]
         noise_logits = x[:, -1]  # Última saída da rede
