@@ -1,5 +1,5 @@
-display_width = 1000
-display_height = 600
+display_width = 1400
+display_height = 800
 
 display_table_width = 800
 display_table_height = 400

@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from dataclasses import dataclass
+import torch.nn.functional as F
 
 
 @dataclass
@@ -95,7 +96,8 @@ class mlp_input(nn.Module):
         x = self.mlp(x)
         
         return  x
-
+    
+    
 class TransformersAtor(nn.Module):
     def __init__(self, encoder, model_args : Model_args):
         super(TransformersAtor, self).__init__()
@@ -105,7 +107,53 @@ class TransformersAtor(nn.Module):
         self.mlp = nn.Sequential( 
                 nn.Linear(model_args.embed_dim, model_args.mlp_dim),
                 nn.ReLU(),
-                nn.Linear(model_args.mlp_dim, 2) # Vamos sair com (sen, cos, intensidade)
+                nn.Linear(model_args.mlp_dim, 7*9 + 1 + 1)
+        )
+        
+        self.head_intensity = nn.Sigmoid() # Sigmoid para garantir que a intensidade fique entre 0 e 1
+        
+    def forward(self, x, bola_branca): 
+    
+        x = self.econder(x,bola_branca)
+        
+        x = self.mlp(x)
+        
+        
+        logits = x[:, :-2]  # Todos os valores, exceto os dois últimos
+        intensity = self.head_intensity(x[:, -2])  # Penúltima saída
+        
+        
+        
+        x_min = -0.08  # Limite inferior
+        z_max = 0.08  # Limite superior
+
+        # Transformar o noise para [x, z]
+        noise_logits = x[:, -1]  # Última saída da rede
+        noise = torch.sigmoid(noise_logits) * (z_max - x_min) + x_min
+        
+        
+        action_probs = F.softmax(logits, dim=-1)
+
+
+        #position = self.linear(position)
+        #position = torch.clamp(position, -torch.pi, torch.pi)
+
+        #radianos = 1.2*torch.pi*torch.cos( position * torch.pi)
+        
+        
+        return action_probs, intensity, noise
+        
+
+'''class TransformersAtor(nn.Module):
+    def __init__(self, encoder, model_args : Model_args):
+        super(TransformersAtor, self).__init__()
+        
+        self.econder = encoder
+        
+        self.mlp = nn.Sequential( 
+                nn.Linear(model_args.embed_dim, model_args.mlp_dim),
+                nn.ReLU(),
+                nn.Linear(model_args.mlp_dim, 2)
         )
         
         self.head_intensity = nn.Sigmoid() # Sigmoid para garantir que a intensidade fique entre 0 e 1
@@ -131,7 +179,7 @@ class TransformersAtor(nn.Module):
         #radianos = 1.2*torch.pi*torch.cos( position * torch.pi)
         
         
-        return torch.concat((position,intensity),dim=-1)
+        return torch.concat((position,intensity),dim=-1)'''
 
 
 class TransformerValueModel(nn.Module):
