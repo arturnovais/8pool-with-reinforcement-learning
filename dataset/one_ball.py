@@ -22,7 +22,7 @@ import pickle
 
 from tqdm import tqdm
 
-def one_ball(amostras = 15_000):
+def one_ball(amostras = 7_000):
     env = GAME(draw=False)  
     
     states, states_white, label = [],[],[]
@@ -33,24 +33,24 @@ def one_ball(amostras = 15_000):
         #x, y = state_bola_branca
         #x1, y1 = state[0][:2]
 
-        distance = (state_bola_branca -state[0][:2]).pow(2).sum().item() **0.5
+        distance = (state_bola_branca -state[1][:2]).pow(2).sum().item() **0.5
         
         #x *= cfg.display_table_width
         #x1 *= cfg.display_table_width
         #y *= cfg.display_table_height
         #y1 *= cfg.display_table_height
         
-        x,y = (state[0][:2] - state_bola_branca)*torch.tensor([cfg.display_table_width, cfg.display_table_height])
+        x,y = (state[1][:2] - state_bola_branca)*torch.tensor([cfg.display_table_width, cfg.display_table_height])
         angulo = torch.atan2(y,x)
         
-        intensidade  = torch.tensor(distance * 0.42)
+        intensidade  = torch.tensor(distance * 0.7)
         
         angulo = angulo.unsqueeze(0)
         intensidade = intensidade.unsqueeze(0)
         
         angulo = torch.concat([angulo, intensidade])
         
-        
+        #env.step(angulo)
         
         
         states += [state]

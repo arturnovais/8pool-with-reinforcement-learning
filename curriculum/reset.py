@@ -8,10 +8,11 @@ def reset_random_one_ball(env,raio_buraco = 13):
 
     cfg.raio_buraco = raio_buraco
     
-    epson = raio_buraco*2
+    epson = raio_buraco*3
 
     env.reset()
     env.table.bolas = env.table.bolas[:2] + [env.table.bola_branca]
+    #env.table.bolas = env.table.bolas[1:2] + [env.table.bola_branca]
     numero_bola = env.table.bolas[1].numero
         
     for _ ,  bola in enumerate(env.table.bolas[1:]):
@@ -19,5 +20,5 @@ def reset_random_one_ball(env,raio_buraco = 13):
         bola.posicao[0] = torch.rand(1).item() * (env.table.largura - epson*2  ) + env.table.x_start + epson
         
     env.numero_bolas = [[ numero_bola ], [ 1 ]]
-        
+    
     return env.get_observations()

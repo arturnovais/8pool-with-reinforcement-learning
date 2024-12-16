@@ -128,8 +128,7 @@ class TransformersAtor(nn.Module):
         #position = self.linear(position)
         #position = torch.clamp(position, -torch.pi, torch.pi)
 
-        #radianos = 1.2*torch.pi*torch.cos( position * torch.pi)
-        
+        #position = 1.2*torch.pi*torch.cos( position * torch.pi)
         
         return torch.concat((position,intensity),dim=-1)
 
